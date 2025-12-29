@@ -13,19 +13,71 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from types import ModuleType
+from typing import Any
 
 import pytest
 from apathetic_logging import makeSafeTrace
 from apathetic_utils import find_all_packages_under_path, find_python_command
 
 
-if TYPE_CHECKING:
-    from types import ModuleType
-
-
 class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnusedClass]
     """Mixin class providing build and runtime utilities for testing."""
+
+    @staticmethod
+    def detect_module_runtime_mode(
+        mod: ModuleType,
+        *,
+        stitch_hints: set[str] | None = None,
+    ) -> str:
+        """Detect the runtime mode of a specific module.
+
+        Determines whether a module was built as part of a stitched single-file
+        script, zipapp archive, or standard package by checking for markers and
+        file path attributes.
+
+        This check prioritizes marker-based detection (most reliable) but falls
+        back to path heuristics for edge cases. It works correctly in:
+        - Stitched mode: Modules loaded from a .py stitched script
+        - Zipapp mode: Modules loaded from a .pyz zipapp archive
+        - Package mode: Regular package modules
+        - Mixed scenarios: When testing a stitched module while running in package mode
+
+        Args:
+            mod: Module to check
+            stitch_hints: Optional set of path hints to identify stitched modules.
+                Defaults to {"/dist/", "stitched"}. Used as fallback when markers
+                are not present.
+
+        Returns:
+            - "stitched" if module has __STITCHED__ or __STANDALONE__ marker,
+              or __file__ path matches stitch_hints
+            - "zipapp" if module __file__ indicates zipapp (contains .pyz)
+            - "package" for regular package modules
+
+        Raises:
+            TypeError: If mod is not a ModuleType
+        """
+        if stitch_hints is None:
+            stitch_hints = {"/dist/", "stitched"}
+
+        if not isinstance(mod, ModuleType):  # pyright: ignore[reportUnnecessaryIsInstance]
+            msg = f"Expected ModuleType, got {type(mod).__name__}"
+            raise TypeError(msg)
+
+        # Check for stitched markers first (most reliable)
+        if hasattr(mod, "__STITCHED__") or hasattr(mod, "__STANDALONE__"):
+            return "stitched"
+
+        # Check for zipapp and stitched by looking at __file__ path
+        file_path = getattr(mod, "__file__", "") or ""
+        if ".pyz/" in file_path or file_path.endswith(".pyz"):
+            return "zipapp"
+        if any(h in file_path for h in stitch_hints):
+            return "stitched"
+
+        # Default to package mode
+        return "package"
 
     @staticmethod
     def _check_needs_rebuild(output_path: Path, src_dir: Path) -> bool:
@@ -240,9 +292,7 @@ class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnu
                 cwd=root,
                 check=True,
             )
-            ApatheticTest_Internal_Runtime._validate_build_output(
-                zipapp_path, "zipapp"
-            )
+            ApatheticTest_Internal_Runtime._validate_build_output(zipapp_path, "zipapp")
 
         return zipapp_path
 

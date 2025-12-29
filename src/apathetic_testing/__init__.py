@@ -44,9 +44,16 @@ ensure_stitched_script_up_to_date = apathetic_testing.ensure_stitched_script_up_
 ensure_zipapp_up_to_date = apathetic_testing.ensure_zipapp_up_to_date
 runtime_swap = apathetic_testing.runtime_swap
 
-# Testing
-create_mock_superclass_test = apathetic_testing.create_mock_superclass_test
+# Testing - Runtime
 detect_module_runtime_mode = apathetic_testing.detect_module_runtime_mode
+
+# Testing - Pytest
+is_running_under_pytest = apathetic_testing.is_running_under_pytest
+
+# Testing - Mock
+create_mock_superclass_test = apathetic_testing.create_mock_superclass_test
+
+# Testing - Patch
 patch_everywhere = apathetic_testing.patch_everywhere
 
 
@@ -55,8 +62,12 @@ __all__ = [  # noqa: RUF022
     "ensure_stitched_script_up_to_date",
     "ensure_zipapp_up_to_date",
     "runtime_swap",
-    # testing
-    "create_mock_superclass_test",
+    # testing - runtime
     "detect_module_runtime_mode",
+    # testing - pytest
+    "is_running_under_pytest",
+    # testing - mock
+    "create_mock_superclass_test",
+    # testing - patch
     "patch_everywhere",
 ]

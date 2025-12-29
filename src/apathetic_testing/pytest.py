@@ -38,6 +38,7 @@ Example usage:
 from __future__ import annotations
 
 import logging
+import os
 import sys
 import time
 import types
@@ -53,12 +54,46 @@ from typing_extensions import Self
 
 
 if TYPE_CHECKING:
-    from .logger_namespace import ApatheticLogging_Internal_Logger
-    from .namespace import apathetic_logging as apathetic_logging_class
+    from .logger_namespace import (  # type: ignore[import-not-found]  # pyright: ignore[reportMissingImports]
+        ApatheticLogging_Internal_Logger,  # pyright: ignore[reportUnknownVariableType]
+    )
+    from .namespace import (  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue,reportMissingImports]
+        apathetic_logging as apathetic_logging_class,  # pyright: ignore[reportUnknownVariableType]
+    )
 
     Logger: TypeAlias = ApatheticLogging_Internal_Logger.Logger
 else:
     Logger = apathetic_logging.Logger
+
+
+# ============================================================================
+# Pytest Mixin
+# ============================================================================
+
+
+class ApatheticTest_Internal_Pytest:  # noqa: N801  # pyright: ignore[reportUnusedClass]
+    """Mixin class providing pytest-related utilities."""
+
+    @staticmethod
+    def is_running_under_pytest() -> bool:
+        """Detect if code is running under pytest.
+
+        Checks multiple indicators:
+        - Environment variables set by pytest
+        - Command-line arguments containing 'pytest'
+
+        Returns:
+            True if running under pytest, False otherwise
+        """
+        return (
+            "pytest" in os.environ.get("_", "")
+            or "PYTEST_CURRENT_TEST" in os.environ
+            or any(
+                "pytest" in arg
+                for arg in sys.argv
+                if isinstance(arg, str)  # pyright: ignore[reportUnnecessaryIsInstance]
+            )
+        )
 
 
 # ============================================================================
@@ -134,7 +169,7 @@ class LoggingIsolation:
         Raises:
             AssertionError: If the levels don't match.
         """
-        root = logging.getLogger("")  # type: ignore[assignment]
+        root = logging.getLogger("")
         expected_int = (
             apathetic_logging.getLevelNumber(expected)
             if isinstance(expected, str)
@@ -161,7 +196,7 @@ class LoggingIsolation:
         Raises:
             AssertionError: If the levels don't match or logger not found.
         """
-        logger = logging.getLogger(name)  # type: ignore[assignment]
+        logger = logging.getLogger(name)
         expected_int = (
             apathetic_logging.getLevelNumber(expected)
             if isinstance(expected, str)
@@ -852,7 +887,7 @@ def apathetic_logger() -> Logger:
             apathetic_logger.trace("So is this")
             assert apathetic_logger.levelName == "TEST"
     """
-    logger = logging.getLogger(f"test_logger_{uuid.uuid4().hex[:6]}")  # type: ignore[return-value]
+    logger = logging.getLogger(f"test_logger_{uuid.uuid4().hex[:6]}")
     logger.setLevel(apathetic_logging.TEST_LEVEL)
     return logger
 

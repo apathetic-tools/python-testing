@@ -16,7 +16,7 @@ import apathetic_logging as alib_logging
 import pytest
 
 import apathetic_testing as alib_utils
-import apathetic_testing.pytest_helpers as mod_pytest_helpers
+import apathetic_testing.pytest as mod_pytest_helpers
 from tests.utils import (
     DEFAULT_TEST_LOG_LEVEL,
     PROGRAM_PACKAGE,
