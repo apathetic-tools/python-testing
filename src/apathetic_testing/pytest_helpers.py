@@ -125,37 +125,6 @@ class LoggingIsolation:
         """
         self._saved_state = saved_state
 
-    def get_root_logger(self) -> Logger:
-        """Get the root logger.
-
-        Returns:
-            The root logger instance.
-        """
-        return logging.getLogger("")  # type: ignore[return-value]
-
-    def get_logger(self, name: str | None = None) -> Logger:
-        """Get a logger by name, creating it if needed.
-
-        Args:
-            name: Logger name. If None, returns root logger.
-
-        Returns:
-            The requested logger instance.
-        """
-        return logging.getLogger(name)  # type: ignore[return-value]
-
-    def get_all_loggers(self) -> dict[str, logging.Logger]:
-        """Get all loggers in the logging registry.
-
-        Returns:
-            Dictionary of logger name to logger instance.
-        """
-        return {
-            name: logger
-            for name, logger in logging.Logger.manager.loggerDict.items()
-            if isinstance(logger, logging.Logger)
-        }
-
     def assert_root_level(self, expected: str | int) -> None:
         """Assert that the root logger has the expected level.
 
@@ -165,7 +134,7 @@ class LoggingIsolation:
         Raises:
             AssertionError: If the levels don't match.
         """
-        root = self.get_root_logger()
+        root = logging.getLogger("")  # type: ignore[assignment]
         expected_int = (
             apathetic_logging.getLevelNumber(expected)
             if isinstance(expected, str)
@@ -192,7 +161,7 @@ class LoggingIsolation:
         Raises:
             AssertionError: If the levels don't match or logger not found.
         """
-        logger = self.get_logger(name)
+        logger = logging.getLogger(name)  # type: ignore[assignment]
         expected_int = (
             apathetic_logging.getLevelNumber(expected)
             if isinstance(expected, str)
@@ -313,7 +282,7 @@ class LoggingTestLevel:
         Returns:
             The numeric log level of the root logger.
         """
-        return self._isolation.get_root_logger().level
+        return logging.getLogger("").level
 
     @contextmanager
     def temporarily_allow_changes(self) -> Generator[None, None, None]:
@@ -671,12 +640,12 @@ def isolated_logging() -> Generator[LoggingIsolation, None, None]:
 
     Example:
         def test_logger_isolation(isolated_logging):
-            isolated_logging.set_root_level("DEBUG")
-            assert isolated_logging.get_root_logger().level == logging.DEBUG
+            apathetic_logging.setRootLevel("DEBUG")
+            assert logging.getLogger("").level == logging.DEBUG
 
         def test_no_state_bleeding(isolated_logging):
             # Previous test's state is not present here
-            root = isolated_logging.get_root_logger()
+            root = logging.getLogger("")
             assert root.level != logging.DEBUG
     """
     # Save state
@@ -867,7 +836,7 @@ class StreamCapture:
 
 
 @pytest.fixture
-def apathetic_logger(isolated_logging: LoggingIsolation) -> Logger:
+def apathetic_logger() -> Logger:
     """Fixture providing a test logger with a unique name.
 
     This fixture creates a new logger with a unique name and sets it to
@@ -883,7 +852,7 @@ def apathetic_logger(isolated_logging: LoggingIsolation) -> Logger:
             apathetic_logger.trace("So is this")
             assert apathetic_logger.levelName == "TEST"
     """
-    logger = isolated_logging.get_logger(f"test_logger_{uuid.uuid4().hex[:6]}")
+    logger = logging.getLogger(f"test_logger_{uuid.uuid4().hex[:6]}")  # type: ignore[return-value]
     logger.setLevel(apathetic_logging.TEST_LEVEL)
     return logger
 
