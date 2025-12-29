@@ -1,0 +1,26 @@
+---
+description: Type checking and linting best practices
+globs:
+  - "**/*.py"
+  - "pyproject.toml"
+  - "pytest.ini"
+alwaysApply: false
+---
+
+### Type Checking and Linting Best Practices
+
+**Fix over ignore**: Always fix when possible. Use ignore comments only for: signature-matching requirements (pytest hooks, interfaces), defensive checks with value, or two tools that conflict.
+
+**Ignore comments**: End of line, don't count toward line length. Examples: `# type: ignore[error-code]`, `# pyright: ignore[error-code]`, `# noqa: CODE`
+
+**Common patterns**:
+- Unused args: Prefix with `_` unless signature must match (pytest hooks, interfaces) - then ignore
+- Complexity/param warnings: Refactor if improves readability; otherwise ignore
+- Type inference: Use `cast_hint()` (project utils) or `typing.cast()` (not in tests). `cast_hint()` for intentional narrowing/IDE inference; `cast()` for Union/Optional/nested generics
+- Defensive checks: `isinstance()` with ignore only for external data (params, config, user input). Not for constants.
+
+**TypedDict maintenance**: Always update TypedDict when adding properties. Add `_new_field: NotRequired[Type]` (or `Type` if required). Never use `type: ignore` to bypass missing fields.
+
+**Resolved TypedDict pattern**: "Resolved" TypedDicts (e.g., `ConfigResolved`) - fields that can be resolved (even to empty defaults) should always be present, not `NotRequired`. Use `NotRequired` only for truly optional fields that may never be set. Examples: ✅ `items: list[Item]` (resolves to `[]`), ✅ `optional_feature: NotRequired[str]` (conditional), ❌ `items: NotRequired[list[Item]]` (can resolve to `[]`).
+
+**Configuration files**: NEVER modify `pyproject.toml`, `pytest.ini`, or tool configs to "fix" errors. STOP and ask developer if needed. Exception: explicit user request.

@@ -1,0 +1,12 @@
+---
+description: Apathetic Python Testing project overview and context
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+## Apathetic Python Testing Project Context
+
+Collection of utility functions for Apathetic Tools projects. Lightweight, dependency-free, for CLI tools.
+
+See: `pyproject.toml` (configs/tasks), `ROADMAP.md` (roadmap)
