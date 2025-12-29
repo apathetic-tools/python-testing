@@ -1,7 +1,7 @@
 # pyproject.toml
 
 [project]
-name = "apathetic-utils"
+name = "apathetic-testing"
 version = "0.5.2"
 description = "When stdlib is almost enough."
 authors = [
@@ -11,7 +11,8 @@ readme = "README.md"
 license-files = ["LICENSE"]
 requires-python = ">=3.10"
 dependencies = [
-    "apathetic-logging (>=0.3.2,<2.0.0)"
+    "apathetic-logging (>=0.3.2,<2.0.0)",
+    "apathetic-utils (>=0.5.2,<0.6.0)"
 ]
 keywords = ["library", "utilities", "utils"]
 # https://pypi.org/classifiers/

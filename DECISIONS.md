@@ -106,7 +106,7 @@ The project needed a **canonical distribution format** that works seamlessly wit
 ### Decision
 
 Enable **PyPI releases** as the primary distribution method for the package.  
-This provides a **standard, familiar installation path** that integrates with Python's ecosystem — allowing users to install via `pip install apathetic-utils` or add it as a dependency in `pyproject.toml` with version constraints.  
+This provides a **standard, familiar installation path** that integrates with Python's ecosystem — allowing users to install via `pip install apathetic-testing` or add it as a dependency in `pyproject.toml` with version constraints.  
 PyPI releases complement the single-file and zipapp distributions by offering the canonical importable package format that works seamlessly with dependency management tools.
 
 This decision prioritizes **user convenience and ecosystem integration** while maintaining the project's other distribution formats for specialized use cases.

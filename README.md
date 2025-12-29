@@ -38,10 +38,10 @@ print(f"Running in {mode} mode")
 
 ```bash
 # Using poetry
-poetry add apathetic-utils
+poetry add apathetic-testing
 
 # Using pip
-pip install apathetic-utils
+pip install apathetic-testing
 ```
 
 ## Documentation

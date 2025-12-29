@@ -67,10 +67,10 @@ Install via **poetry** or **pip**:
 
 ```bash
 # Using poetry
-poetry add apathetic-utils
+poetry add apathetic-testing
 
 # Using pip
-pip install apathetic-utils
+pip install apathetic-testing
 ```
 
 For alternative installation methods, see the [Installation Guide]({{ '/installation' | relative_url }}).

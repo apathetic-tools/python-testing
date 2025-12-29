@@ -17,7 +17,7 @@ Complete API documentation for Apathetic Python Testing.
 | **Pattern Matching** | [`fnmatchcase_portable()`](#fnmatchcase_portable), [`is_excluded_raw()`](#is_excluded_raw) |
 | **Module Detection** | [`detect_packages_from_files()`](#detect_packages_from_files), [`find_all_packages_under_path()`](#find_all_packages_under_path) |
 | **System Detection** | [`is_ci()`](#is_ci), [`if_ci()`](#if_ci), [`is_running_under_pytest()`](#is_running_under_pytest), [`detect_runtime_mode()`](#detect_runtime_mode), [`capture_output()`](#capture_output), [`get_sys_version_info()`](#get_sys_version_info) |
-| **Runtime Utilities** | [`find_python_command()`](#find_python_command), [`ensure_stitched_script_up_to_date()`](#ensure_stitched_script_up_to_date), [`ensure_zipapp_up_to_date()`](#ensure_zipapp_up_to_date), [`runtime_swap()`](#runtime_swap) |
+| **Runtime Utilities** | [`ensure_stitched_script_up_to_date()`](#ensure_stitched_script_up_to_date), [`ensure_zipapp_up_to_date()`](#ensure_zipapp_up_to_date), [`runtime_swap()`](#runtime_swap) |
 | **Subprocess Utilities** | [`run_with_output()`](#run_with_output), [`run_with_separated_output()`](#run_with_separated_output) |
 | **Text Processing** | [`plural()`](#plural), [`remove_path_in_error_message()`](#remove_path_in_error_message) |
 | **Type Utilities** | [`safe_isinstance()`](#safe_isinstance), [`literal_to_set()`](#literal_to_set), [`cast_hint()`](#cast_hint), [`schema_from_typeddict()`](#schema_from_typeddict) |

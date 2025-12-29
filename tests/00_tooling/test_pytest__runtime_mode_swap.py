@@ -24,8 +24,8 @@ from pathlib import Path
 
 import apathetic_logging as alib_logging
 import pytest
+from apathetic_utils import detect_runtime_mode
 
-import apathetic_testing as alib_utils
 import apathetic_testing as app_package
 from tests.utils import PROGRAM_PACKAGE, PROGRAM_SCRIPT, PROJ_ROOT
 
@@ -131,8 +131,8 @@ def test_pytest_runtime_cache_integrity() -> None:  # noqa: PLR0912, PLR0915
 
     if os.getenv("TRACE"):
         dump_snapshot()
-    # Access via main module to get the function from the namespace class
-    runtime_mode = alib_utils.detect_runtime_mode(package_name=PROGRAM_PACKAGE)
+    # Get the runtime mode using detect_runtime_mode from apathetic_utils
+    runtime_mode = detect_runtime_mode(package_name=PROGRAM_PACKAGE)
 
     if mode == "stitched":
         # --- verify stitched ---

@@ -16,8 +16,8 @@ import zipfile
 from pathlib import Path
 
 import pytest
+from apathetic_utils import find_python_command
 
-import apathetic_testing
 from tests.utils.constants import PROJ_ROOT
 
 
@@ -42,7 +42,7 @@ def test_zipapp_import_semantics(tmp_path: Path) -> None:
     zipapp_file = tmp_path / f"apathetic_testing_{test_id}.pyz"
 
     # --- execute: build zipapp ---
-    zipbundler_cmd = apathetic_testing.find_python_command(
+    zipbundler_cmd = find_python_command(
         "zipbundler",
         error_hint=(
             "zipbundler not found. "

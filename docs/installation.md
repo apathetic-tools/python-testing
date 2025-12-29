@@ -15,13 +15,13 @@ The recommended way to install Apathetic Python Testing is via PyPI. We prefer `
 ### Using Poetry (Preferred)
 
 ```bash
-poetry add apathetic-utils
+poetry add apathetic-testing
 ```
 
 ### Using pip
 
 ```bash
-pip install apathetic-utils
+pip install apathetic-testing
 ```
 
 This installation method provides:

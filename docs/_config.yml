@@ -50,7 +50,7 @@ minima:
       url: "https://github.com/apathetic-tools/python-testing"
     - title: PyPI
       icon: pypi
-      url: "https://pypi.org/project/apathetic-utils/"
+      url: "https://pypi.org/project/apathetic-testing/"
 
 
 # Exclude files from processing

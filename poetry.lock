@@ -41,6 +41,21 @@ apathetic-logging = ">=0.3.2,<2.0.0"
 apathetic-utils = ">=0.2.1,<2.0.0"
 
 [[package]]
+name = "apathetic-utils"
+version = "0.5.2"
+description = "When stdlib is almost enough."
+optional = false
+python-versions = ">=3.10"
+groups = ["main", "dev"]
+files = [
+    {file = "apathetic_utils-0.5.2-py3-none-any.whl", hash = "sha256:063b9018248a69cbce1c146acd84b0eaed178f6975711a179a2a75101be4e7bb"},
+    {file = "apathetic_utils-0.5.2.tar.gz", hash = "sha256:0fba9b1c1237846d4aab0cf6fe5519203e3546cc41270b56020146850a11cdff"},
+]
+
+[package.dependencies]
+apathetic-logging = ">=0.3.2,<2.0.0"
+
+[[package]]
 name = "certifi"
 version = "2025.11.12"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -1889,4 +1904,4 @@ apathetic-utils = ">=0.0.1,<2.0.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10"
-content-hash = "a3e484ab04162ea88679e3318a63e0c98c49ba08fb2a5b0f4a570edd2bfc0647"
+content-hash = "d2399e6a53b89e492db283b1ba3e278c2e82057450db52d370e70c9755355ecc"

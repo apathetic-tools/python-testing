@@ -1,5 +1,9 @@
 # src/apathetic_testing/runtime.py
-"""Build and runtime utilities for testing."""
+"""Build and runtime utilities for testing.
+
+Note: Runtime testing functions have been moved to apathetic-utils.
+Only functions needed for testing in apathetic-testing remain.
+"""
 
 from __future__ import annotations
 
@@ -13,9 +17,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 from apathetic_logging import makeSafeTrace
-
-from .modules import ApatheticUtils_Internal_Modules
-from .subprocess_utils import ApatheticUtils_Internal_Subprocess
+from apathetic_utils import find_all_packages_under_path, find_python_command
 
 
 if TYPE_CHECKING:
@@ -24,51 +26,6 @@ if TYPE_CHECKING:
 
 class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnusedClass]
     """Mixin class providing build and runtime utilities for testing."""
-
-    @staticmethod
-    def detect_runtime_mode(package_name: str) -> str:  # noqa: PLR0911
-        """Detect the current runtime mode.
-
-        Args:
-            package_name: Name of the package to check for stitched mode
-
-        Returns:
-            - "frozen" if running as a frozen executable
-            - "zipapp" if running as a .pyz zipapp
-            - "stitched" if running as a stitched single-file script
-                (detects both __STITCHED__ and __STANDALONE__ markers)
-            - "package" if running from package
-        """
-        if getattr(sys, "frozen", False):
-            return "frozen"
-        # Check for zipapp mode by looking for an attribute on __main__
-        # named after this module's __file__ path that ends with .pyz
-        if "__main__" in sys.modules:
-            main_mod = sys.modules["__main__"]
-            # Get this module's __file__ path to use as attribute name
-            runtime_file = __file__
-            zipapp_path = getattr(main_mod, runtime_file, "")
-            if isinstance(zipapp_path, str) and zipapp_path.endswith(".pyz"):
-                return "zipapp"
-        # Check for stitched mode in multiple locations
-        # Supports both __STITCHED__ and __STANDALONE__ for backward compatibility
-        # 1. Current module's globals (for when called from within stitched script)
-        # This works when all files are stitched into a single namespace
-        if "__STITCHED__" in globals() or "__STANDALONE__" in globals():
-            return "stitched"
-        # 2. Check package module's globals (when loaded via importlib)
-        # The stitched script is loaded as the package
-        pkg_mod = sys.modules.get(package_name)
-        if pkg_mod is not None and (
-            hasattr(pkg_mod, "__STITCHED__") or hasattr(pkg_mod, "__STANDALONE__")
-        ):
-            return "stitched"
-        # 3. Check __main__ module's globals (for script execution)
-        if "__main__" in sys.modules:
-            main_mod = sys.modules["__main__"]
-            if hasattr(main_mod, "__STITCHED__") or hasattr(main_mod, "__STANDALONE__"):
-                return "stitched"
-        return "package"
 
     @staticmethod
     def _check_needs_rebuild(output_path: Path, src_dir: Path) -> bool:
@@ -195,7 +152,7 @@ class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUn
                 raise RuntimeError(msg)
 
             print("⚙️  Rebuilding stitched bundle (serger)...")  # noqa: T201
-            serger_cmd = ApatheticUtils_Internal_Subprocess.find_python_command(
+            serger_cmd = find_python_command(
                 "serger",
                 error_hint=(
                     "serger not found. "
@@ -259,7 +216,7 @@ class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUn
                 return zipapp_path
 
             # Fall back to using zipbundler
-            zipbundler_cmd = ApatheticUtils_Internal_Subprocess.find_python_command(
+            zipbundler_cmd = find_python_command(
                 "zipbundler",
                 error_hint=(
                     "zipbundler not found. "
@@ -342,9 +299,7 @@ class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUn
         # Nuke any already-imported modules from src/ to avoid stale refs.
         # Dynamically detect all modules under src/ instead of hardcoding names.
         src_dir = root / "src"
-        modules_to_nuke = ApatheticUtils_Internal_Modules.find_all_packages_under_path(
-            src_dir
-        )
+        modules_to_nuke = find_all_packages_under_path(src_dir)
 
         for name in list(sys.modules):
             # Check if module name matches any detected module or is a submodule
