@@ -16,7 +16,7 @@ import pytest
 from apathetic_logging import safeTrace
 
 
-class ApatheticUtils_Internal_Testing:  # noqa: N801  # pyright: ignore[reportUnusedClass]
+class ApatheticTest_Internal_Testing:  # noqa: N801  # pyright: ignore[reportUnusedClass]
     """Mixin class providing reusable test utilities.
 
     Inherit from this mixin in your test classes to access shared test utilities
@@ -330,7 +330,7 @@ class ApatheticUtils_Internal_Testing:  # noqa: N801  # pyright: ignore[reportUn
         is_stitched_or_zipapp = False
         if isinstance(mod_env, ModuleType):
             # Check if module is stitched or zipapp
-            mode = ApatheticUtils_Internal_Testing.detect_module_runtime_mode(
+            mode = ApatheticTest_Internal_Testing.detect_module_runtime_mode(
                 mod_env,
                 stitch_hints=stitch_hints,
             )
@@ -379,7 +379,7 @@ class ApatheticUtils_Internal_Testing:  # noqa: N801  # pyright: ignore[reportUn
             # 2) Single-file/zipapp case: reloaded stitched modules or zipapp modules
             #    Check for __STITCHED__ marker first (most reliable), then fallback
             #    to path heuristics
-            mode = ApatheticUtils_Internal_Testing.detect_module_runtime_mode(
+            mode = ApatheticTest_Internal_Testing.detect_module_runtime_mode(
                 m,
                 stitch_hints=stitch_hints,
             )

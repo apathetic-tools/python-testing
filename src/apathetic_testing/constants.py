@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 
-class ApatheticUtils_Internal_Constants:  # noqa: N801  # pyright: ignore[reportUnusedClass]
+class ApatheticTest_Internal_Constants:  # noqa: N801  # pyright: ignore[reportUnusedClass]
     """Constants for apathetic testing functionality.
 
     This class contains all constant values used by apathetic_testing.

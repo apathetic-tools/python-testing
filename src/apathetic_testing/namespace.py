@@ -8,13 +8,13 @@ when the library is embedded in a stitched script.
 from __future__ import annotations
 
 from .constants import (
-    ApatheticUtils_Internal_Constants,
+    ApatheticTest_Internal_Constants,
 )
 from .runtime import (
-    ApatheticUtils_Internal_Runtime,
+    ApatheticTest_Internal_Runtime,
 )
 from .testing import (
-    ApatheticUtils_Internal_Testing,
+    ApatheticTest_Internal_Testing,
 )
 
 
@@ -22,9 +22,9 @@ from .testing import (
 
 
 class apathetic_testing(  # noqa: N801
-    ApatheticUtils_Internal_Constants,
-    ApatheticUtils_Internal_Runtime,
-    ApatheticUtils_Internal_Testing,
+    ApatheticTest_Internal_Constants,
+    ApatheticTest_Internal_Runtime,
+    ApatheticTest_Internal_Testing,
 ):
     """Namespace for apathetic testing functionality.
 

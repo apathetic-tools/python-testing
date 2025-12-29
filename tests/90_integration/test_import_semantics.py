@@ -14,7 +14,7 @@ and mode_verify/stitched_example/stitched_run.py, but as a pytest integration te
 that runs in both runtime modes.
 """
 
-import apathetic_testing as mod_autils
+import apathetic_testing as mod_atest
 
 
 def test_import_semantics_work_in_all_runtime_modes() -> None:
@@ -31,11 +31,11 @@ def test_import_semantics_work_in_all_runtime_modes() -> None:
     # --- execute ---
     # Verify import semantics: namespace should be accessible via the module
     # This tests that the import mechanism works correctly in the current runtime mode
-    assert hasattr(mod_autils, "apathetic_testing"), (
+    assert hasattr(mod_atest, "apathetic_testing"), (
         "apathetic_testing namespace should be accessible via module"
     )
 
-    apathetic_testing_ns = mod_autils.apathetic_testing
+    apathetic_testing_ns = mod_atest.apathetic_testing
 
     # --- verify ---
     # Verify the namespace is a class (validates import semantics worked)

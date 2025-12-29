@@ -16,7 +16,7 @@ from tests.utils.constants import PROJ_ROOT
 
 # --- convenience -----------------------------------------------------------
 
-_runtime = amod_utils_runtime.ApatheticUtils_Internal_Runtime
+_runtime = amod_utils_runtime.ApatheticTest_Internal_Runtime
 
 
 # ---------------------------------------------------------------------------

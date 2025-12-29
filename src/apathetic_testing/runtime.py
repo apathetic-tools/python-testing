@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from types import ModuleType
 
 
-class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnusedClass]
+class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnusedClass]
     """Mixin class providing build and runtime utilities for testing."""
 
     @staticmethod
@@ -97,7 +97,7 @@ class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUn
             check=True,
             cwd=root,
         )
-        ApatheticUtils_Internal_Runtime._validate_build_output(output_path, build_type)
+        ApatheticTest_Internal_Runtime._validate_build_output(output_path, build_type)
         return True
 
     @staticmethod
@@ -131,13 +131,13 @@ class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUn
         src_dir = root / "src" / package_name
 
         # Check if rebuild is needed
-        needs_rebuild = ApatheticUtils_Internal_Runtime._check_needs_rebuild(
+        needs_rebuild = ApatheticTest_Internal_Runtime._check_needs_rebuild(
             bin_path, src_dir
         )
 
         if needs_rebuild:
             # Check if command_path is provided and exists
-            if ApatheticUtils_Internal_Runtime._run_bundler_script(
+            if ApatheticTest_Internal_Runtime._run_bundler_script(
                 root, command_path, bin_path, "stitched script"
             ):
                 return bin_path
@@ -167,7 +167,7 @@ class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUn
                 check=True,
                 cwd=root,
             )
-            ApatheticUtils_Internal_Runtime._validate_build_output(
+            ApatheticTest_Internal_Runtime._validate_build_output(
                 bin_path, "stitched script"
             )
 
@@ -204,13 +204,13 @@ class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUn
         src_dir = root / "src" / package_name
 
         # Check if rebuild is needed
-        needs_rebuild = ApatheticUtils_Internal_Runtime._check_needs_rebuild(
+        needs_rebuild = ApatheticTest_Internal_Runtime._check_needs_rebuild(
             zipapp_path, src_dir
         )
 
         if needs_rebuild:
             # Check if command_path is provided and exists
-            if ApatheticUtils_Internal_Runtime._run_bundler_script(
+            if ApatheticTest_Internal_Runtime._run_bundler_script(
                 root, command_path, zipapp_path, "zipapp"
             ):
                 return zipapp_path
@@ -240,7 +240,7 @@ class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUn
                 cwd=root,
                 check=True,
             )
-            ApatheticUtils_Internal_Runtime._validate_build_output(
+            ApatheticTest_Internal_Runtime._validate_build_output(
                 zipapp_path, "zipapp"
             )
 
@@ -309,11 +309,11 @@ class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUn
                     break
 
         if mode == "stitched":
-            return ApatheticUtils_Internal_Runtime._load_stitched_mode(
+            return ApatheticTest_Internal_Runtime._load_stitched_mode(
                 root, package_name, script_name, stitch_command, safe_trace, log_level
             )
         if mode == "zipapp":
-            return ApatheticUtils_Internal_Runtime._load_zipapp_mode(
+            return ApatheticTest_Internal_Runtime._load_zipapp_mode(
                 root, package_name, script_name, zipapp_command, safe_trace, log_level
             )
 
@@ -331,7 +331,7 @@ class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUn
         log_level: str | None = None,
     ) -> bool:
         """Load stitched single-file script mode."""
-        bin_path = ApatheticUtils_Internal_Runtime.ensure_stitched_script_up_to_date(
+        bin_path = ApatheticTest_Internal_Runtime.ensure_stitched_script_up_to_date(
             root=root,
             script_name=script_name,
             package_name=package_name,
@@ -393,7 +393,7 @@ class ApatheticUtils_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUn
         Handles zipbundler zipapps which store packages directly in the zip root.
         Python's standard zipimporter can handle this structure directly.
         """
-        zipapp_path = ApatheticUtils_Internal_Runtime.ensure_zipapp_up_to_date(
+        zipapp_path = ApatheticTest_Internal_Runtime.ensure_zipapp_up_to_date(
             root=root,
             script_name=script_name,
             package_name=package_name,
