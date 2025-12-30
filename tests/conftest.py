@@ -33,7 +33,8 @@ alib_test.runtime_swap(
 # Load plugins that provide fixtures and hooks
 # - pytest_apathetic_logging: logging fixtures (atest_reset_logger_level autouse)
 # - pytest_debug: filters @pytest.mark.debug tests (opt-in via -k debug)
-pytest_plugins = ["pytest_apathetic_logging", "pytest_debug"]
+# - pytest_quiet: adjusts output based on verbosity level
+pytest_plugins = ["pytest_apathetic_logging", "pytest_debug", "pytest_quiet"]
 
 safe_trace = alib_logging.makeSafeTrace("⚡️")
 
@@ -94,22 +95,6 @@ def _filter_runtime_mode_tests(
 # ----------------------------------------------------------------------
 # Hooks
 # ----------------------------------------------------------------------
-
-
-def pytest_configure(config: pytest.Config) -> None:
-    """Configure pytest options based on verbosity."""
-    verbose = getattr(config.option, "verbose", 0)
-    if verbose <= 0:
-        # In quiet mode, modify reportchars to exclude skipped tests ('s')
-        # The -ra flag in pytest.ini shows all, but hide skipped in quiet mode
-        reportchars = getattr(config.option, "reportchars", "")
-        if reportchars == "a":
-            # 'a' means "all except passed", change to exclude skipped and passed output
-            # Use explicit chars: f (failed), E (error), x (xfailed), X (xpassed)
-            config.option.reportchars = "fExX"
-        elif "s" in reportchars or "P" in reportchars:
-            # Remove 's' (skipped) and 'P' (passed with output) in quiet mode
-            config.option.reportchars = reportchars.replace("s", "").replace("P", "")
 
 
 def pytest_report_header(config: pytest.Config) -> str:  # noqa: ARG001 # pyright: ignore[reportUnknownParameterType]
