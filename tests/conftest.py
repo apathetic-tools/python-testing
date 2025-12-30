@@ -10,20 +10,11 @@ Switch mode with: RUNTIME_MODE=stitched pytest or RUNTIME_MODE=zipapp pytest
 """
 
 import apathetic_testing as alib_test
-from tests.utils import (
-    PROGRAM_PACKAGE,
-    PROGRAM_SCRIPT,
-    PROJ_ROOT,
-)
 
 
 # early jank hook, must happen before importing the <package>
 # so we get the stitched/zipapp version in the right mode
-alib_test.runtime_swap(
-    root=PROJ_ROOT,
-    package_name=PROGRAM_PACKAGE,
-    script_name=PROGRAM_SCRIPT,
-)
+alib_test.runtime_swap()
 
 # Load plugins that provide fixtures and hooks
 # - pytest_apathetic_logging: logging fixtures (atest_reset_logger_level autouse)

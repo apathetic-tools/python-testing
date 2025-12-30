@@ -33,7 +33,7 @@ from typing import Any
 
 import pytest
 from apathetic_logging import makeSafeTrace
-from apathetic_utils import find_all_packages_under_path, find_python_command
+from apathetic_utils import find_all_packages_under_path, find_python_command, load_toml
 
 
 class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnusedClass]
@@ -337,10 +337,70 @@ class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnu
         return zipapp_path
 
     @staticmethod
+    def _find_project_root() -> Path:
+        """Find project root with priority: env var > git root > CWD.
+
+        Priority order:
+        1. PROJ_ROOT environment variable (explicit override)
+        2. Walk up directories looking for .git (file or dir, handles submodules)
+        3. Current working directory (fallback)
+
+        Returns:
+            Path to project root directory
+        """
+        # Priority 1: Explicit env var override
+        env_root = os.getenv("PROJ_ROOT")
+        if env_root:
+            return Path(env_root).resolve()
+
+        # Priority 2: Look for .git by walking up from CWD
+        # (handles both regular repos and submodules)
+        current = Path.cwd().resolve()
+        for parent in [current, *current.parents]:
+            git_path = parent / ".git"
+            if git_path.exists():
+                # .git can be a directory (regular repo) or file (submodule)
+                return parent
+
+        # Priority 3: Current working directory (fallback)
+        return Path.cwd().resolve()
+
+    @staticmethod
+    def _get_package_name_from_pyproject(root: Path) -> str | None:
+        """Extract package name from pyproject.toml.
+
+        Reads project.name from pyproject.toml and normalizes hyphens to
+        underscores for Python import compatibility.
+
+        Args:
+            root: Project root directory containing pyproject.toml
+
+        Returns:
+            Normalized package name (hyphens → underscores), or None if not found
+        """
+        pyproject_path = root / "pyproject.toml"
+        if not pyproject_path.exists():
+            return None
+
+        try:
+            data = load_toml(pyproject_path)
+            if data is None:
+                return None
+            project_name = data.get("project", {}).get("name")
+            if isinstance(project_name, str):
+                # Normalize hyphens to underscores for Python imports
+                return project_name.replace("-", "_")
+        except (ValueError, RuntimeError):
+            # Errors parsing TOML
+            return None
+
+        return None
+
+    @staticmethod
     def runtime_swap(
         *,
-        root: Path,
-        package_name: str,
+        root: Path | None = None,
+        package_name: str | None = None,
         script_name: str | None = None,
         stitch_command: str | None = None,
         zipapp_command: str | None = None,
@@ -359,8 +419,10 @@ class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnu
         This ensures all test imports work transparently regardless of runtime mode.
 
         Args:
-            root: Project root directory
-            package_name: Name of the package (e.g., "apathetic_testing")
+            root: Project root directory. If None, auto-detects by looking for git
+                repository root, then falls back to current working directory.
+            package_name: Name of the package (e.g., "apathetic_testing"). If None,
+                attempts to read from pyproject.toml [project] name field.
             script_name: Optional name of the distributed script (without extension).
                 If None, defaults to package_name.
             stitch_command: Optional path to bundler script for stitched mode
@@ -383,8 +445,23 @@ class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnu
             True if swap was performed, False if in package mode
 
         Raises:
-            pytest.UsageError: If mode is invalid or build fails
+            pytest.UsageError: If mode is invalid, package_name cannot be determined,
+                or build fails
         """
+        if root is None:
+            root = ApatheticTest_Internal_Runtime._find_project_root()
+
+        if package_name is None:
+            package_name = (
+                ApatheticTest_Internal_Runtime._get_package_name_from_pyproject(root)
+            )
+            if package_name is None:
+                msg = (
+                    "package_name not provided and could not be read from "
+                    f"pyproject.toml at {root / 'pyproject.toml'}"
+                )
+                raise pytest.UsageError(msg)
+
         safe_trace = makeSafeTrace("🧬")
 
         # Priority: mode > CLI flag > env var
