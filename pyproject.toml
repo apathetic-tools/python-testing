@@ -443,6 +443,7 @@ keep_trailing_newline = false
 [project.entry-points.pytest11]
 pytest_apathetic_logging = "pytest_apathetic_logging"
 pytest_debug = "pytest_debug"
+pytest_runtime_classic = "pytest_runtime_classic"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]
