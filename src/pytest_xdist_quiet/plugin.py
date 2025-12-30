@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from apathetic_testing import has_pytest_plugin_enabled  # noqa: ICN003
+
 
 if TYPE_CHECKING:
     import pytest
@@ -20,6 +22,9 @@ def pytest_configure(config: pytest.Config) -> None:
     without requiring manual pytest.ini configuration. It skips adding the filter
     if it's already configured to avoid duplicates.
     """
+    if not has_pytest_plugin_enabled(config, ["xdist", "benchmark"]):
+        return
+
     xdist_filter = "ignore::pytest_benchmark.logger.PytestBenchmarkWarning"
 
     # Check if the filter is already configured

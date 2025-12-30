@@ -79,6 +79,32 @@ class ApatheticTest_Internal_Pytest:  # noqa: N801  # pyright: ignore[reportUnus
 
         return False
 
+    @staticmethod
+    def has_pytest_plugin_enabled(
+        config: pytest.Config, plugin_names: str | list[str]
+    ) -> bool:
+        """Check if all specified pytest plugins are enabled.
+
+        Checks if the given plugin(s) are actually enabled (not disabled via
+        -p no:pluginname flag). Uses config.pluginmanager.hasplugin() which
+        respects the -p no:pluginname flag.
+
+        Args:
+            config: The pytest Config object
+            plugin_names: A single plugin name (str) or list of plugin names to
+                check (e.g., 'benchmark', 'xdist').
+
+        Returns:
+            True if all specified plugins are enabled, False otherwise
+        """
+        # Normalize to list
+        if isinstance(plugin_names, str):
+            plugin_names = [plugin_names]
+
+        # Check if all requested plugins are enabled using hasplugin(),
+        # which respects -p no:pluginname flags
+        return all(config.pluginmanager.hasplugin(plugin) for plugin in plugin_names)
+
 
 __all__ = [
     "ApatheticTest_Internal_Pytest",
