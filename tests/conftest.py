@@ -30,9 +30,10 @@ alib_test.runtime_swap(
     script_name=PROGRAM_SCRIPT,
 )
 
-# Load logging fixtures from pytest plugin
-# This automatically includes atest_reset_logger_level (autouse for all tests)
-pytest_plugins = ["pytest_apathetic_logging"]
+# Load plugins that provide fixtures and hooks
+# - pytest_apathetic_logging: logging fixtures (atest_reset_logger_level autouse)
+# - pytest_debug: filters @pytest.mark.debug tests (opt-in via -k debug)
+pytest_plugins = ["pytest_apathetic_logging", "pytest_debug"]
 
 safe_trace = alib_logging.makeSafeTrace("⚡️")
 
@@ -43,26 +44,6 @@ safe_trace = alib_logging.makeSafeTrace("⚡️")
 
 def _mode() -> str:
     return os.getenv("RUNTIME_MODE", "package")
-
-
-def _filter_debug_tests(
-    config: pytest.Config,
-    items: list[pytest.Item],
-) -> None:
-    # detect if the user is filtering for debug tests
-    keywords = config.getoption("-k") or ""
-    running_debug = "debug" in keywords.lower()
-
-    if running_debug:
-        return  # user explicitly requested them, don't skip
-
-    for item in items:
-        # Check for the actual @pytest.mark.debug marker, not just "debug" in keywords
-        # (parametrized values can add "debug" to keywords, causing false positives)
-        if item.get_closest_marker("debug") is not None:
-            item.add_marker(
-                pytest.mark.skip(reason="Skipped debug test (use -k debug to run)"),
-            )
 
 
 def _filter_runtime_mode_tests(
@@ -142,9 +123,8 @@ def pytest_collection_modifyitems(
 ) -> None:
     """Filter and record runtime-specific tests for later reporting.
 
-    also automatically skips debug tests unless asked for
+    Debug test filtering is handled by the pytest_debug plugin.
     """
-    _filter_debug_tests(config, items)
     _filter_runtime_mode_tests(config, items)
 
 

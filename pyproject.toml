@@ -442,6 +442,7 @@ keep_trailing_newline = false
 # --- Poetry Build System ---
 [project.entry-points.pytest11]
 pytest_apathetic_logging = "pytest_apathetic_logging"
+pytest_debug = "pytest_debug"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]
