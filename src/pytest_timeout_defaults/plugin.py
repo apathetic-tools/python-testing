@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import apathetic_testing.pytest as ap_pytest
+from apathetic_testing import (  # noqa: ICN003
+    has_pytest_plugin_enabled,
+    has_pytest_user_config,
+)
 
 
 if TYPE_CHECKING:
@@ -23,43 +26,16 @@ def pytest_configure(config: pytest.Config) -> None:
     When using the default timeout, timeout_func_only is also set to False
     to ensure all tests (not just functions) respect the timeout.
     """
-    # Check if pytest-timeout plugin is active
-    has_timeout_plugin = hasattr(config.pluginmanager.hook, "pytest_timeout")
-
-    if not has_timeout_plugin:
-        # pytest-timeout is not installed, skip configuration
-        return
-
-    # Check if timeout was configured via any method
-    try:
-        config.getini("timeout")
-    except (KeyError, ValueError):
-        # Option doesn't exist or can't be read, skip
+    if not has_pytest_plugin_enabled(config, "timeout"):
         return
 
     # Only apply defaults if user hasn't configured timeout via any method
-    user_configured_timeout = (
-        ap_pytest.ApatheticTest_Internal_Pytest.has_pytest_user_config(
-            config, "timeout"
-        )
-    )
-
-    if (
-        not user_configured_timeout
-        and hasattr(config, "inicfg")
-        and isinstance(config.inicfg, dict)
-    ):
+    if not has_pytest_user_config(config, "timeout"):
         # Set default timeout to 60 seconds
         config.inicfg["timeout"] = 60
 
         # Only set timeout_func_only if user hasn't configured it
-        user_configured_func_only = (
-            ap_pytest.ApatheticTest_Internal_Pytest.has_pytest_user_config(
-                config, "timeout_func_only"
-            )
-        )
-
-        if not user_configured_func_only:
+        if not has_pytest_user_config(config, "timeout_func_only"):
             # Only set to False when using our default timeout and user
             # hasn't configured this option
             config.inicfg["timeout_func_only"] = False
