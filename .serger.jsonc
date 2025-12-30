@@ -17,7 +17,8 @@
   // that needs to be stitched together with apathetic_testing
   "include": [
     "src/apathetic_*/**/*.py",
-    "apathetic_logging/**/*.py"
+    "apathetic_logging/**/*.py",
+    "apathetic_utils/**/*.py"
   ],
 
   // Files to exclude from stitching
@@ -26,5 +27,5 @@
     "__pycache__/**",
     "*.pyc",
     "**/__main__.py"     // Entry point, not stitched
-  ],
+  ]
 }
