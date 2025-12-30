@@ -10,14 +10,12 @@ Switch mode with: RUNTIME_MODE=stitched pytest or RUNTIME_MODE=zipapp pytest
 """
 
 import os
-from collections.abc import Generator
 
 import apathetic_logging as alib_logging
 import pytest
 
 import apathetic_testing as alib_test
 from tests.utils import (
-    DEFAULT_TEST_LOG_LEVEL,
     PROGRAM_PACKAGE,
     PROGRAM_SCRIPT,
     PROJ_ROOT,
@@ -32,38 +30,11 @@ alib_test.runtime_swap(
     script_name=PROGRAM_SCRIPT,
 )
 
-# Re-export fixtures from apathetic_testing for pytest discovery
-# (direct_logger and module_logger removed in favor of atest_* fixtures)
-
-# Re-export fixtures from fixtures for pytest discovery
-atest_apathetic_logger = alib_test.atest_apathetic_logger
-atest_isolated_logging = alib_test.atest_isolated_logging
-atest_logging_level_testing = alib_test.atest_logging_level_testing
-atest_logging_test_level = alib_test.atest_logging_test_level
+# Load logging fixtures from pytest plugin
+# This automatically includes atest_reset_logger_level (autouse for all tests)
+pytest_plugins = ["pytest_apathetic_logging"]
 
 safe_trace = alib_logging.makeSafeTrace("⚡️")
-
-# ----------------------------------------------------------------------
-# Fixtures
-# ----------------------------------------------------------------------
-
-
-@pytest.fixture(autouse=True)
-def reset_logger_level() -> Generator[None, None, None]:
-    """Reset logger level to default (INFO) before each test for isolation.
-
-    In stitched mode, the logger is a module-level singleton that persists
-    between tests. This fixture ensures the logger level is reset to INFO
-    (the default) before each test, preventing test interference.
-    """
-    # Get the app logger and reset to default level
-    logger = alib_logging.getLogger()
-    # Reset to INFO (default) - this ensures tests start with a known state
-    logger.setLevel(DEFAULT_TEST_LOG_LEVEL)
-    yield
-    # After test, reset again to ensure clean state for next test
-    logger.setLevel(DEFAULT_TEST_LOG_LEVEL)
-
 
 # ----------------------------------------------------------------------
 # Helpers

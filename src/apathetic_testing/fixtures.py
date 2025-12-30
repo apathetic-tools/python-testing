@@ -517,9 +517,9 @@ def atest_isolated_logging() -> Generator[
         # In case apathetic_logging is not fully initialized
         logging.setLoggerClass(logging.Logger)
 
-    # Explicitly reset root logger to default level (WARNING)
+    # Explicitly reset root logger to TEST level (matching test environment default)
     root = apathetic_logging.getRootLogger()
-    root.setLevel(logging.WARNING)
+    root.setLevel(apathetic_logging.TEST_LEVEL)
 
     # Create and yield helper
     isolation = ApatheticTest_Internal_Fixtures.LoggingIsolation(saved_state)
@@ -644,10 +644,32 @@ def atest_apathetic_logger() -> apathetic_logging.Logger:
     return logger
 
 
+@pytest.fixture(autouse=True)
+def atest_reset_logger_level() -> Generator[None, None, None]:
+    """Reset logger level to TEST level before each test for consistency.
+
+    In stitched mode, the logger is a module-level singleton that persists
+    between tests. This fixture ensures the logger level is reset to TEST
+    (the test environment default) before each test, preventing test
+    interference and ensuring consistent logging behavior.
+
+    This fixture is automatically used by all tests when the
+    pytest_apathetic_logging plugin is loaded.
+    """
+    # Get the app logger and reset to TEST level
+    logger = apathetic_logging.getRootLogger()
+    # Reset to TEST level - this ensures tests start with a known state
+    logger.setLevel(apathetic_logging.TEST_LEVEL)
+    yield
+    # After test, reset again to ensure clean state for next test
+    logger.setLevel(apathetic_logging.TEST_LEVEL)
+
+
 __all__ = [
     "ApatheticTest_Internal_Fixtures",
     "atest_apathetic_logger",
     "atest_isolated_logging",
     "atest_logging_level_testing",
     "atest_logging_test_level",
+    "atest_reset_logger_level",
 ]

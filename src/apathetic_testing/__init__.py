@@ -71,6 +71,7 @@ if not globals().get("atest_isolated_logging", False):
     atest_logging_test_level = _amod_fixtures.atest_logging_test_level
     atest_logging_level_testing = _amod_fixtures.atest_logging_level_testing
     atest_apathetic_logger = _amod_fixtures.atest_apathetic_logger
+    atest_reset_logger_level = _amod_fixtures.atest_reset_logger_level
 
 
 __all__ = [  # noqa: RUF022
@@ -94,4 +95,5 @@ __all__ = [  # noqa: RUF022
     "atest_logging_test_level",
     "atest_logging_level_testing",
     "atest_apathetic_logger",
+    "atest_reset_logger_level",
 ]
