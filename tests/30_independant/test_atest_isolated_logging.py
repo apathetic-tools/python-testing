@@ -1,11 +1,9 @@
-"""Tests for the logging fixture API.
+# tests/30_independant/test_atest_isolated_logging.py
+"""Tests for atest_isolated_logging fixture.
 
-These tests verify that the logging fixtures (atest_isolated_logging,
-atest_logging_test_level, atest_logging_level_testing) work correctly and
-provide the documented API.
-
-Note: These tests are independent of the actual logging implementation bugs.
-They verify that our fixtures work as documented for users.
+Tests for atest_isolated_logging, including logger state reset, isolation
+between tests, and the public API (assert_root_level, assert_logger_level,
+capture_streams).
 """
 
 from __future__ import annotations
@@ -13,8 +11,12 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import apathetic_logging as amod_logging
 import pytest
+
+
+# ---------------------------------------------------------------------------
+# Tests for atest_isolated_logging
+# ---------------------------------------------------------------------------
 
 
 def test_isolated_logging_resets_logger_state(
@@ -117,93 +119,6 @@ def test_isolated_logging_with_parametrized_tests(
     atest_isolated_logging.assert_root_level(level)
 
 
-class TestIsolatedLoggingClassBased:
-    """Class-based tests with atest_isolated_logging fixture."""
-
-    def test_one(
-        self,
-        atest_isolated_logging: Any,  # noqa: ARG002
-    ) -> None:
-        """Test in class - first method sets a level."""
-        root = logging.getLogger("")
-        root.setLevel(logging.DEBUG)
-        assert root.level == logging.DEBUG
-
-    def test_two(
-        self,
-        atest_isolated_logging: Any,  # noqa: ARG002
-    ) -> None:
-        """Test in class - second method gets clean state."""
-        root = logging.getLogger("")
-        # State should be reset from previous test
-        assert root.level != logging.DEBUG
-
-
-def test_logging_test_level_prevents_downgrades(
-    atest_logging_test_level: Any,  # noqa: ARG001
-) -> None:
-    """Test that atest_logging_test_level prevents downgrading below TEST level."""
-    root = logging.getLogger("")
-    # Should be at TEST level (most verbose)
-    assert root.level <= logging.DEBUG  # TEST is 2, DEBUG is 10
-
-
-def test_logging_test_level_allows_temporary_changes(
-    atest_logging_test_level: Any,
-) -> None:
-    """Test that atest_logging_test_level allows temporary downgrades when needed."""
-    # Allow the app to change levels temporarily
-    with atest_logging_test_level.temporarily_allow_changes():
-        root = logging.getLogger("")
-        root.setLevel(logging.ERROR)
-        assert root.level == logging.ERROR
-    # After context, downgrade prevention is re-enabled
-
-
-def test_logging_level_testing_tracks_changes(
-    atest_logging_level_testing: Any,
-) -> None:
-    """Test that atest_logging_level_testing tracks level changes."""
-    # Initial level should be set (default ERROR)
-    atest_logging_level_testing.assert_root_level("ERROR")
-    # Change the level
-    root = logging.getLogger("")
-    root.setLevel(logging.DEBUG)
-    atest_logging_level_testing.assert_root_level("DEBUG")
-
-
-def test_logging_level_testing_assert_level_changed_from(
-    atest_logging_level_testing: Any,
-) -> None:
-    """Test that atest_logging_level_testing can verify level transitions."""
-    # Change the level using apathetic_logging (which tracking_level wraps)
-    amod_logging.setRootLevel(logging.DEBUG)
-    # This should pass - we changed from ERROR to DEBUG
-    atest_logging_level_testing.assert_level_changed_from("ERROR", to="DEBUG")
-
-
-def test_logging_level_testing_assert_level_not_changed(
-    atest_logging_level_testing: Any,
-) -> None:
-    """Test that atest_logging_level_testing detects if level wasn't changed."""
-    # Don't change the level
-    with pytest.raises(AssertionError):
-        # This should fail - we didn't change from initial ERROR level
-        atest_logging_level_testing.assert_level_changed_from("ERROR", to="DEBUG")
-
-
-@pytest.mark.initial_level("WARNING")
-def test_logging_level_testing_with_initial_level_marker(
-    atest_logging_level_testing: Any,
-) -> None:
-    """Test that atest_logging_level_testing respects initial_level marker.
-
-    This test has a pytest mark that should set the initial level to WARNING.
-    """
-    # Should have started at WARNING due to the marker
-    atest_logging_level_testing.assert_root_level("WARNING")
-
-
 def test_capture_streams_context_manager(
     atest_isolated_logging: Any,
 ) -> None:
@@ -235,3 +150,25 @@ def test_capture_streams_counts_multiple_messages(
         expected_count_msg2 = 1
         assert count1 == expected_count_msg1
         assert count2 == expected_count_msg2
+
+
+class TestIsolatedLoggingClassBased:
+    """Class-based tests with atest_isolated_logging fixture."""
+
+    def test_one(
+        self,
+        atest_isolated_logging: Any,  # noqa: ARG002
+    ) -> None:
+        """Test in class - first method sets a level."""
+        root = logging.getLogger("")
+        root.setLevel(logging.DEBUG)
+        assert root.level == logging.DEBUG
+
+    def test_two(
+        self,
+        atest_isolated_logging: Any,  # noqa: ARG002
+    ) -> None:
+        """Test in class - second method gets clean state."""
+        root = logging.getLogger("")
+        # State should be reset from previous test
+        assert root.level != logging.DEBUG

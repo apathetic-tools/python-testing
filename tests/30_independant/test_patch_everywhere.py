@@ -1,4 +1,8 @@
-"""Test patch_everywhere and is_module_stitched for stitched module handling."""
+"""Tests for patch_everywhere function.
+
+Tests for patch_everywhere, including stitched mode isolation and respecting
+stitch hints.
+"""
 
 from __future__ import annotations
 
