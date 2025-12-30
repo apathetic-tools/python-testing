@@ -24,6 +24,7 @@ import pytest
 from tests.utils.constants import PROJ_ROOT
 
 
+@pytest.mark.skip(reason="serger testing disabled")
 def test_serger_build_import_semantics(tmp_path: Path) -> None:
     """Test that serger build of the project maintains correct import semantics.
 

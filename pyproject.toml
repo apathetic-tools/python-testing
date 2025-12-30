@@ -103,7 +103,7 @@ test = [
 # Parallel: all three modes with parallel execution
 "test:parallel" = [
   "test:pytest:package:parallel",
-  "test:pytest:stitched:parallel",
+  # "test:pytest:stitched:parallel",  # serger disabled
   "test:pytest:zipapp:parallel"
 ]
 

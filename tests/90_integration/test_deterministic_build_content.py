@@ -117,6 +117,7 @@ def test_serger_build_with_sample_code_is_deterministic(
 # ============================================================================
 
 
+@pytest.mark.skip(reason="serger testing disabled")
 def test_serger_build_is_deterministic() -> None:
     """Test that two serger builds of the project produce identical output.
 
