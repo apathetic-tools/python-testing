@@ -1,8 +1,8 @@
 # Jekyll configuration for GitHub Pages
 # general config reference: https://jekyllrb.com/docs/configuration/
 
-title: Apathetic Python Testing ⚙️
-description: Collection of utility functions for Apathetic Tools projects
+title: Apathetic Python Testing 🧪
+description: Lightweight pytest utilities for testing CLI and config-driven applications
 url: https://apathetic-tools.github.io
 baseurl: /python-testing
 
@@ -34,10 +34,8 @@ minima:
   # Navigation
   nav_pages:
     - index.md
-    - installation.md
-    - quickstart.md
-    - api.md
-    - examples.md
+    - usage.md
+    - reference.md
     - contributing.md
 
   hide_site_feed_link: true

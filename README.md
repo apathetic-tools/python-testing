@@ -1,4 +1,4 @@
-# Apathetic Python Testing ⚙️
+# Apathetic Python Testing 🧪
 
 [![CI](https://github.com/apathetic-tools/python-testing/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/apathetic-tools/python-testing/actions/workflows/ci.yml)
 [![License: MIT-a-NOAI](https://img.shields.io/badge/License-MIT--a--NOAI-blueviolet.svg)](LICENSE)
@@ -9,7 +9,9 @@
 **Runtime-aware pytest extensions.**  
 *When you need just a bit more.*
 
-*Apathetic Python Testing* provides a lightweight, dependency-free collection of utility functions designed for CLI tools. It includes helpers for file loading, path manipulation, system detection, text processing, type checking, pattern matching, and more.
+*Apathetic Python Testing* provides a focused collection of pytest fixtures and utilities designed for Apathetic Tools projects. It helps you test CLI applications, logging behavior, and code that ships as stitched scripts or zipapps.
+
+Some ways to generate stitched scripts are [serger](https://github.com/apathetic-tools/serger); and for zipapps: [zipbundler](Runtime-aware pytest extensions. ) or stdlib's [zipapp](https://docs.python.org/3/library/zipapp.html).
 
 > [!NOTE]
 > Heads up: the AI cooked dinner. It's edible, but watch your step.  
@@ -18,20 +20,39 @@
 ## Quick Start
 
 ```python
-from apathetic_testing import load_jsonc, load_toml, is_ci, detect_runtime_mode
-from pathlib import Path
+from apathetic_testing import patch_everywhere, runtime_swap
+from apathetic_testing.logging import (
+    isolated_logging,
+    logging_test_level,
+    logging_level_testing,
+)
 
-# Load configuration files
-config = load_jsonc(Path("config.jsonc"))
-pyproject = load_toml(Path("pyproject.toml"))
+# Test log level isolation
+def test_app_logging(isolated_logging):
+    # Each test gets fresh logging state
+    isolated_logging.set_root_level("DEBUG")
+    my_app.run()
 
-# Detect environment
-if is_ci():
-    print("Running in CI")
+# Debug with maximum verbosity
+def test_app_with_debugging(logging_test_level):
+    # Root logger at TEST level - all logs visible
+    my_app.run()
 
-# Detect runtime mode (package, stitched, zipapp, frozen)
-mode = detect_runtime_mode("my_package")
-print(f"Running in {mode} mode")
+# Test log level changes
+def test_cli_debug_flag(logging_level_testing):
+    cli.main(["--log-level", "debug"])
+    logging_level_testing.assert_level_changed_from("ERROR", to="DEBUG")
+
+# Safe patching in all runtime modes
+from unittest.mock import Mock
+with patch_everywhere("module.function", Mock(return_value=42)):
+    result = module.function()
+
+# Test stitched/zipapp builds
+def test_in_stitched_mode(runtime_swap):
+    # Automatically swaps to stitched mode if available
+    import my_package
+    my_package.function()
 ```
 
 ## Installation
@@ -52,18 +73,12 @@ For installation guides, API reference, examples, and more, visit our documentat
 
 ## Features
 
-- 🪶 **Zero dependencies** — Uses only Python's standard library (except apathetic-logging for logging)
-- 📁 **File loading** — Load TOML and JSONC files with comment support
-- 🛤️ **Path utilities** — Cross-platform path normalization and glob handling
-- 🔍 **Pattern matching** — Portable glob pattern matching with recursive `**` support
-- 🧩 **Module detection** — Detect Python packages from file paths
-- 🧪 **System detection** — Detect CI environments, pytest execution, and runtime modes
-- ⚙️ **Runtime utilities** — Build and test utilities for stitched scripts and zipapps
-- 🔧 **Subprocess utilities** — Capture and forward subprocess output
-- 📝 **Text processing** — Pluralization and error message cleanup utilities
-- 🔧 **Type utilities** — Safe isinstance checks for TypedDicts and generics
-- 🧪 **Testing utilities** — Helpers for testing mixins and patching functions
-- 🎯 **CLI-friendly** — Designed with command-line applications in mind
+- **🔍 Logging Fixtures** — Isolated logging state, TEST level debugging, level change assertions
+- **🎯 Safe Patching** — `patch_everywhere` for reliable mocking in package, stitched, and zipapp modes
+- **🔄 Runtime Testing** — `runtime_swap` to test stitched scripts and zipapp builds
+- **🪶 Lightweight** — Minimal dependencies (only apathetic-logging)
+- **🧪 CLI-Focused** — Designed for testing command-line applications and config-driven tools
+- **🔧 Helper Utilities** — Mock superclass detection, assertion helpers, and more
 
 ---
 
