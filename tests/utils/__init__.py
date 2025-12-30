@@ -10,7 +10,6 @@ from .constants import (
     PROGRAM_SCRIPT,
     PROJ_ROOT,
 )
-from .log_fixtures import direct_logger, module_logger
 
 
 __all__ = [  # noqa: RUF022
@@ -23,7 +22,4 @@ __all__ = [  # noqa: RUF022
     "PROGRAM_CONFIG",
     "PROGRAM_PACKAGE",
     "PROGRAM_SCRIPT",
-    # fixtures
-    "direct_logger",
-    "module_logger",
 ]

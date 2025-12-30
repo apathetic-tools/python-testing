@@ -30,5 +30,5 @@ DEFAULT_TEST_LOG_LEVEL = "test"
 #: format. This is required for runtime_swap and patch_everywhere to work correctly.
 DISALLOWED_PACKAGES = [
     PROGRAM_PACKAGE,
-    "apathetic_logging",
+    "apathetic_testing",
 ]

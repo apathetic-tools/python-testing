@@ -33,17 +33,8 @@ alib_utils.runtime_swap(
     script_name=PROGRAM_SCRIPT,
 )
 
-from tests.utils import (  # noqa: E402
-    direct_logger,
-    module_logger,
-)
-
-
-# These fixtures are intentionally re-exported so pytest can discover them.
-__all__ = [
-    "direct_logger",
-    "module_logger",
-]
+# Re-export fixtures from apathetic_testing for pytest discovery
+# (direct_logger and module_logger removed in favor of atest_* fixtures)
 
 # Re-export fixtures from fixtures for pytest discovery
 atest_apathetic_logger = mod_logging_fixtures.atest_apathetic_logger
