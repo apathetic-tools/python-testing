@@ -5,10 +5,10 @@ the pytest fixtures in the fixtures module. It includes utilities for saving,
 restoring, and asserting logger state.
 
 For pytest fixtures and test integration, see the fixtures module:
-- isolated_logging: Complete test isolation
-- logging_test_level: TEST level with downgrade prevention
-- logging_level_testing: Track and verify level changes
-- apathetic_logger: Per-test unique logger
+- atest_isolated_logging: Complete test isolation
+- atest_logging_test_level: TEST level with downgrade prevention
+- atest_logging_level_testing: Track and verify level changes
+- atest_apathetic_logger: Per-test unique logger
 """
 
 from __future__ import annotations

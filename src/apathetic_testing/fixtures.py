@@ -31,8 +31,8 @@ class ApatheticTest_Internal_Fixtures:  # noqa: N801  # pyright: ignore[reportUn
     """Mixin class providing fixture-related utilities.
 
     **Public Helper Classes:**
-    - ``LoggingTestLevel`` - Helper for the logging_test_level fixture
-    - ``LoggingLevelTesting`` - Helper for the logging_level_testing fixture
+    - ``LoggingTestLevel`` - Helper for the atest_logging_test_level fixture
+    - ``LoggingLevelTesting`` - Helper for the atest_logging_level_testing fixture
     """
 
     class LoggingTestLevel:
@@ -139,7 +139,7 @@ class ApatheticTest_Internal_Fixtures:  # noqa: N801  # pyright: ignore[reportUn
                 self.prevent_app_level_change()
 
     class LoggingLevelTesting:
-        """Helper object for the logging_level_testing fixture.
+        """Helper object for the atest_logging_level_testing fixture.
 
         Tracks log level changes for testing that your app sets levels
         correctly.
@@ -570,7 +570,7 @@ def atest_logging_test_level(
 
 
 @pytest.fixture
-def logging_level_testing(
+def atest_logging_level_testing(
     atest_isolated_logging: ApatheticTest_Internal_Fixtures.LoggingIsolation,
     request: pytest.FixtureRequest,
     monkeypatch: pytest.MonkeyPatch,
@@ -586,9 +586,9 @@ def logging_level_testing(
     You can set the initial level via a pytest mark:
 
         @pytest.mark.initial_level("ERROR")
-        def test_cli_sets_debug(logging_level_testing):
+        def test_cli_sets_debug(atest_logging_level_testing):
             cli.main(["--log-level", "debug"])
-            logging_level_testing.assert_level_changed_from("ERROR", to="DEBUG")
+            atest_logging_level_testing.assert_level_changed_from("ERROR", to="DEBUG")
 
     If no mark is provided, the default initial level is "ERROR" (quiet).
 
@@ -597,19 +597,19 @@ def logging_level_testing(
 
     Example:
         @pytest.mark.initial_level("WARNING")
-        def test_quiet_flag(logging_level_testing):
+        def test_quiet_flag(atest_logging_level_testing):
             # Starts at WARNING
-            logging_level_testing.assert_root_level("WARNING")
+            atest_logging_level_testing.assert_root_level("WARNING")
 
             cli.main(["--quiet"])
 
             # Verify changed to ERROR or higher
-            logging_level_testing.assert_root_level("ERROR")
+            atest_logging_level_testing.assert_root_level("ERROR")
 
         @pytest.mark.parametrize("level", ["DEBUG", "INFO", "WARNING", "ERROR"])
-        def test_all_levels(logging_level_testing, level):
+        def test_all_levels(atest_logging_level_testing, level):
             cli.main(["--log-level", level.lower()])
-            logging_level_testing.assert_root_level(level)
+            atest_logging_level_testing.assert_root_level(level)
     """
     # Extract initial level from pytest mark if provided
     marker = request.node.get_closest_marker("initial_level")  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
@@ -648,6 +648,6 @@ __all__ = [
     "ApatheticTest_Internal_Fixtures",
     "atest_apathetic_logger",
     "atest_isolated_logging",
+    "atest_logging_level_testing",
     "atest_logging_test_level",
-    "logging_level_testing",
 ]

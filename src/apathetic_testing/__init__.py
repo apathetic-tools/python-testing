@@ -10,9 +10,9 @@ if TYPE_CHECKING:
 # Get reference to the namespace class
 # In stitched mode: class is already defined in namespace.py (executed before this)
 # In package mode: import from namespace module
-_apathetic_testing_is_standalone = globals().get("__STITCHED__", False)
+_apathetic_testing_is_stitched = globals().get("__STITCHED__", False)
 
-if _apathetic_testing_is_standalone:
+if _apathetic_testing_is_stitched:
     # Stitched mode: class already defined in namespace.py
     # Get reference to the class (it's already in globals from namespace.py)
     _apathetic_testing_raw = globals().get("apathetic_testing")
@@ -56,10 +56,21 @@ create_mock_superclass_test = apathetic_testing.create_mock_superclass_test
 # Testing - Patch
 patch_everywhere = apathetic_testing.patch_everywhere
 
-# Testing - Logging Fixtures
+# Testing - Logging Fixtures (Helper Classes)
 LoggingIsolation = apathetic_testing.LoggingIsolation
 LoggingTestLevel = apathetic_testing.LoggingTestLevel
 LoggingLevelTesting = apathetic_testing.LoggingLevelTesting
+
+# Testing - Logging Fixtures (Pytest Fixtures)
+# In stitched mode: already available in globals from namespace.py
+# In package mode: import from fixtures module for convenience
+if not globals().get("atest_isolated_logging", False):
+    from . import fixtures as _amod_fixtures
+
+    atest_isolated_logging = _amod_fixtures.atest_isolated_logging
+    atest_logging_test_level = _amod_fixtures.atest_logging_test_level
+    atest_logging_level_testing = _amod_fixtures.atest_logging_level_testing
+    atest_apathetic_logger = _amod_fixtures.atest_apathetic_logger
 
 
 __all__ = [  # noqa: RUF022
@@ -74,8 +85,13 @@ __all__ = [  # noqa: RUF022
     "create_mock_superclass_test",
     # patch
     "patch_everywhere",
-    # fixtures
+    # fixtures - helper classes
     "LoggingIsolation",
     "LoggingTestLevel",
     "LoggingLevelTesting",
+    # fixtures - pytest fixtures
+    "atest_isolated_logging",
+    "atest_logging_test_level",
+    "atest_logging_level_testing",
+    "atest_apathetic_logger",
 ]

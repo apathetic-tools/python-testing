@@ -15,8 +15,7 @@ from collections.abc import Generator
 import apathetic_logging as alib_logging
 import pytest
 
-import apathetic_testing as alib_utils
-import apathetic_testing.fixtures as mod_logging_fixtures
+import apathetic_testing as alib_test
 from tests.utils import (
     DEFAULT_TEST_LOG_LEVEL,
     PROGRAM_PACKAGE,
@@ -27,7 +26,7 @@ from tests.utils import (
 
 # early jank hook, must happen before importing the <package>
 # so we get the stitched/zipapp version in the right mode
-alib_utils.runtime_swap(
+alib_test.runtime_swap(
     root=PROJ_ROOT,
     package_name=PROGRAM_PACKAGE,
     script_name=PROGRAM_SCRIPT,
@@ -37,10 +36,10 @@ alib_utils.runtime_swap(
 # (direct_logger and module_logger removed in favor of atest_* fixtures)
 
 # Re-export fixtures from fixtures for pytest discovery
-atest_apathetic_logger = mod_logging_fixtures.atest_apathetic_logger
-atest_isolated_logging = mod_logging_fixtures.atest_isolated_logging
-logging_level_testing = mod_logging_fixtures.logging_level_testing
-atest_logging_test_level = mod_logging_fixtures.atest_logging_test_level
+atest_apathetic_logger = alib_test.atest_apathetic_logger
+atest_isolated_logging = alib_test.atest_isolated_logging
+atest_logging_level_testing = alib_test.atest_logging_level_testing
+atest_logging_test_level = alib_test.atest_logging_test_level
 
 safe_trace = alib_logging.makeSafeTrace("⚡️")
 

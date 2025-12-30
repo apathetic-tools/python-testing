@@ -1,8 +1,8 @@
 """Tests for the logging fixture API.
 
 These tests verify that the logging fixtures (atest_isolated_logging,
-atest_logging_test_level, logging_level_testing) work correctly and provide the
-documented API.
+atest_logging_test_level, atest_logging_level_testing) work correctly and
+provide the documented API.
 
 Note: These tests are independent of the actual logging implementation bugs.
 They verify that our fixtures work as documented for users.
@@ -161,47 +161,47 @@ def test_logging_test_level_allows_temporary_changes(
 
 
 def test_logging_level_testing_tracks_changes(
-    logging_level_testing: Any,
+    atest_logging_level_testing: Any,
 ) -> None:
-    """Test that logging_level_testing tracks level changes."""
+    """Test that atest_logging_level_testing tracks level changes."""
     # Initial level should be set (default ERROR)
-    logging_level_testing.assert_root_level("ERROR")
+    atest_logging_level_testing.assert_root_level("ERROR")
     # Change the level
     root = logging.getLogger("")
     root.setLevel(logging.DEBUG)
-    logging_level_testing.assert_root_level("DEBUG")
+    atest_logging_level_testing.assert_root_level("DEBUG")
 
 
 def test_logging_level_testing_assert_level_changed_from(
-    logging_level_testing: Any,
+    atest_logging_level_testing: Any,
 ) -> None:
-    """Test that logging_level_testing can verify level transitions."""
+    """Test that atest_logging_level_testing can verify level transitions."""
     # Change the level using apathetic_logging (which tracking_level wraps)
     amod_logging.setRootLevel(logging.DEBUG)
     # This should pass - we changed from ERROR to DEBUG
-    logging_level_testing.assert_level_changed_from("ERROR", to="DEBUG")
+    atest_logging_level_testing.assert_level_changed_from("ERROR", to="DEBUG")
 
 
 def test_logging_level_testing_assert_level_not_changed(
-    logging_level_testing: Any,
+    atest_logging_level_testing: Any,
 ) -> None:
-    """Test that logging_level_testing detects if level wasn't changed."""
+    """Test that atest_logging_level_testing detects if level wasn't changed."""
     # Don't change the level
     with pytest.raises(AssertionError):
         # This should fail - we didn't change from initial ERROR level
-        logging_level_testing.assert_level_changed_from("ERROR", to="DEBUG")
+        atest_logging_level_testing.assert_level_changed_from("ERROR", to="DEBUG")
 
 
 @pytest.mark.initial_level("WARNING")
 def test_logging_level_testing_with_initial_level_marker(
-    logging_level_testing: Any,
+    atest_logging_level_testing: Any,
 ) -> None:
-    """Test that logging_level_testing respects initial_level marker.
+    """Test that atest_logging_level_testing respects initial_level marker.
 
     This test has a pytest mark that should set the initial level to WARNING.
     """
     # Should have started at WARNING due to the marker
-    logging_level_testing.assert_root_level("WARNING")
+    atest_logging_level_testing.assert_root_level("WARNING")
 
 
 def test_capture_streams_context_manager(
