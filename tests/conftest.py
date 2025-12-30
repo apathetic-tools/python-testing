@@ -16,7 +16,7 @@ import apathetic_logging as alib_logging
 import pytest
 
 import apathetic_testing as alib_utils
-import apathetic_testing.logging as mod_logging_helpers
+import apathetic_testing.fixtures as mod_logging_fixtures
 from tests.utils import (
     DEFAULT_TEST_LOG_LEVEL,
     PROGRAM_PACKAGE,
@@ -45,11 +45,11 @@ __all__ = [
     "module_logger",
 ]
 
-# Re-export fixtures from logging_helpers for pytest discovery
-apathetic_logger = mod_logging_helpers.apathetic_logger
-isolated_logging = mod_logging_helpers.isolated_logging
-logging_level_testing = mod_logging_helpers.logging_level_testing
-logging_test_level = mod_logging_helpers.logging_test_level
+# Re-export fixtures from fixtures for pytest discovery
+apathetic_logger = mod_logging_fixtures.apathetic_logger
+isolated_logging = mod_logging_fixtures.isolated_logging
+logging_level_testing = mod_logging_fixtures.logging_level_testing
+logging_test_level = mod_logging_fixtures.logging_test_level
 
 safe_trace = alib_logging.makeSafeTrace("⚡️")
 
