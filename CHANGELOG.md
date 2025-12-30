@@ -2,6 +2,33 @@
 
 <!-- version list -->
 
+## v0.2.0 (2025-12-30)
+
+### Documentation
+
+- Add pytest plugin opt-out guide
+  ([`fe14617`](https://github.com/apathetic-tools/python-testing/commit/fe14617252bf1a30a49c5d39bfd8b647c73143d9))
+
+### Features
+
+- Add has_pytest_plugin_enabled() utility for plugin detection
+  ([`71235e7`](https://github.com/apathetic-tools/python-testing/commit/71235e710be95546b41bee01b1bf2f7c38f860c7))
+
+- Add pytest_timeout_defaults and pytest_xdist_quiet plugins
+  ([`59147ed`](https://github.com/apathetic-tools/python-testing/commit/59147ed0bcc853dd456db7e23dd2ac7d25dac309))
+
+### Refactoring
+
+- **pytest_timeout_defaults**: Simplify plugin by removing defensive checks
+  ([`fd6ed49`](https://github.com/apathetic-tools/python-testing/commit/fd6ed494cfbbe6b0758f82af7a9d2e7afb9b2663))
+
+- **tests**: Rename tests/30_independant to tests/30_unit
+  ([`6307d26`](https://github.com/apathetic-tools/python-testing/commit/6307d26c99ddfd0a9b0341cc18fe7c418a249263))
+
+- **tests**: Split unit tests into individual files per function
+  ([`3a8ea80`](https://github.com/apathetic-tools/python-testing/commit/3a8ea8066324b6fcfc5b4abddf2299cbadff25c0))
+
+
 ## v0.1.0 (2025-12-30)
 
 - Initial Release
