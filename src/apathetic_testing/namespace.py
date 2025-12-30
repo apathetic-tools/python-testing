@@ -10,6 +10,9 @@ from __future__ import annotations
 from .constants import (
     ApatheticTest_Internal_Constants,
 )
+from .fixtures import (
+    ApatheticTest_Internal_Fixtures,
+)
 from .logging import (
     ApatheticTest_Internal_Logging,
 )
@@ -34,6 +37,7 @@ class apathetic_testing(  # noqa: N801
     ApatheticTest_Internal_Constants,
     ApatheticTest_Internal_Runtime,
     ApatheticTest_Internal_Logging,
+    ApatheticTest_Internal_Fixtures,
     ApatheticTest_Internal_Pytest,
     ApatheticTest_Internal_Mock,
     ApatheticTest_Internal_Patch,

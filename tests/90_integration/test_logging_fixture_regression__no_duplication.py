@@ -9,7 +9,7 @@ log messages should appear exactly once, regardless of the underlying cause
 
 WHY FIXTURE REGRESSION TESTS?
 -----------------------------
-The fixtures we provide (isolated_logging, logging_test_level, etc.) were
+The fixtures we provide (atest_isolated_logging, atest_logging_test_level, etc.) were
 specifically designed to work around duplication bugs in apathetic-logging.
 This module ensures those workarounds continue to work if apathetic-logging
 changes in the future.
@@ -33,7 +33,7 @@ anticipate. This provides defense-in-depth against regressions.
 
 PARALLEL EXECUTION NOTE
 ------------------------
-These tests use the capture_streams() context manager from our isolated_logging
+These tests use the capture_streams() context manager from our atest_isolated_logging
 fixture. This approach works reliably in:
 - Serial mode (pytest without xdist)
 - Parallel mode (pytest-xdist with multiple workers)
@@ -60,7 +60,7 @@ MAX_HANDLERS_REASONABLE = 3
 
 
 def test_child_propagates_without_excessive_duplication(
-    isolated_logging: Any,
+    atest_isolated_logging: Any,
 ) -> None:
     """Verify child logger message appears without excessive duplication.
 
@@ -76,7 +76,7 @@ def test_child_propagates_without_excessive_duplication(
     child.propagate = True
 
     # Capture output with stream capture
-    with isolated_logging.capture_streams() as capture:
+    with atest_isolated_logging.capture_streams() as capture:
         child.debug("UNIQUE_CHILD_PROPAGATE_001")
 
     # Count message appearances in output
@@ -89,7 +89,7 @@ def test_child_propagates_without_excessive_duplication(
 
 
 def test_root_and_child_logging_no_excessive_duplication(
-    isolated_logging: Any,
+    atest_isolated_logging: Any,
 ) -> None:
     """Verify separate messages from root and child don't duplicate excessively."""
     root = logging.getLogger("")
@@ -100,7 +100,7 @@ def test_root_and_child_logging_no_excessive_duplication(
     child.propagate = True
 
     # Capture output with stream capture
-    with isolated_logging.capture_streams() as capture:
+    with atest_isolated_logging.capture_streams() as capture:
         root.debug("UNIQUE_ROOT_MESSAGE_002")
         child.debug("UNIQUE_CHILD_MESSAGE_002")
 
@@ -118,7 +118,7 @@ def test_root_and_child_logging_no_excessive_duplication(
 
 
 def test_multiple_children_no_excessive_duplication(
-    isolated_logging: Any,
+    atest_isolated_logging: Any,
 ) -> None:
     """Verify multiple child loggers propagate without excessive duplication."""
     root = logging.getLogger("")
@@ -132,7 +132,7 @@ def test_multiple_children_no_excessive_duplication(
         child.propagate = True
 
     # Capture output with stream capture
-    with isolated_logging.capture_streams() as capture:
+    with atest_isolated_logging.capture_streams() as capture:
         child1.debug("UNIQUE_MULTI_MSG_1_003")
         child2.debug("UNIQUE_MULTI_MSG_2_003")
         child3.debug("UNIQUE_MULTI_MSG_3_003")
@@ -153,7 +153,7 @@ def test_multiple_children_no_excessive_duplication(
 
 
 def test_sequential_messages_no_excessive_duplication(
-    isolated_logging: Any,
+    atest_isolated_logging: Any,
 ) -> None:
     """Verify sequential logging doesn't cause excessive duplication."""
     root = logging.getLogger("")
@@ -164,7 +164,7 @@ def test_sequential_messages_no_excessive_duplication(
     logger.propagate = True
 
     # Capture output with stream capture
-    with isolated_logging.capture_streams() as capture:
+    with atest_isolated_logging.capture_streams() as capture:
         for i in range(1, 6):
             logger.debug("UNIQUE_SEQ_MSG_%d_004", i)
 
@@ -179,7 +179,7 @@ def test_sequential_messages_no_excessive_duplication(
 
 
 def test_non_propagating_child_no_excessive_duplication(
-    isolated_logging: Any,  # noqa: ARG001
+    atest_isolated_logging: Any,  # noqa: ARG001
 ) -> None:
     """Verify non-propagating child logger doesn't have duplicate handlers.
 
@@ -210,7 +210,7 @@ def test_non_propagating_child_no_excessive_duplication(
 
 
 def test_mixed_propagating_and_non_propagating_no_duplication(
-    isolated_logging: Any,
+    atest_isolated_logging: Any,
 ) -> None:
     """Verify mix of propagating and non-propagating children works correctly."""
     root = logging.getLogger("")
@@ -225,7 +225,7 @@ def test_mixed_propagating_and_non_propagating_no_duplication(
     child_no_prop.propagate = False
 
     # Capture output with stream capture
-    with isolated_logging.capture_streams() as capture:
+    with atest_isolated_logging.capture_streams() as capture:
         child_prop.debug("UNIQUE_PROP_MSG_XYZ_006")
         child_no_prop.debug("UNIQUE_NOPROP_MSG_ABC_006")
 
@@ -248,7 +248,7 @@ def test_mixed_propagating_and_non_propagating_no_duplication(
 
 
 def test_root_level_context_no_excessive_duplication(
-    isolated_logging: Any,
+    atest_isolated_logging: Any,
 ) -> None:
     """Verify useRootLevel context doesn't cause excessive output duplication."""
     root = logging.getLogger("")
@@ -258,7 +258,7 @@ def test_root_level_context_no_excessive_duplication(
 
     # Capture output with stream capture
     with (
-        isolated_logging.capture_streams() as capture,
+        atest_isolated_logging.capture_streams() as capture,
         amod_logging.useRootLevel("DEBUG"),
     ):
         root.debug("UNIQUE_CONTEXT_ROOT_MSG_007")
@@ -279,7 +279,7 @@ def test_root_level_context_no_excessive_duplication(
 
 
 def test_sequential_root_level_contexts_no_excessive_duplication(
-    isolated_logging: Any,
+    atest_isolated_logging: Any,
 ) -> None:
     """Verify sequential useRootLevel contexts don't cause excessive duplication.
 
@@ -292,21 +292,21 @@ def test_sequential_root_level_contexts_no_excessive_duplication(
 
     # Use useRootLevel sequentially (reproduces the bug scenario)
     with (
-        isolated_logging.capture_streams() as capture1,
+        atest_isolated_logging.capture_streams() as capture1,
         amod_logging.useRootLevel("DEBUG"),
     ):
         logger.debug("UNIQUE_SEQUENTIAL_CONTEXT_MSG_1_008")
     msg1_count = capture1.count_message("UNIQUE_SEQUENTIAL_CONTEXT_MSG_1_008")
 
     with (
-        isolated_logging.capture_streams() as capture2,
+        atest_isolated_logging.capture_streams() as capture2,
         amod_logging.useRootLevel("DEBUG"),
     ):
         logger.debug("UNIQUE_SEQUENTIAL_CONTEXT_MSG_2_008")
     msg2_count = capture2.count_message("UNIQUE_SEQUENTIAL_CONTEXT_MSG_2_008")
 
     with (
-        isolated_logging.capture_streams() as capture3,
+        atest_isolated_logging.capture_streams() as capture3,
         amod_logging.useRootLevel("DEBUG"),
     ):
         logger.debug("UNIQUE_SEQUENTIAL_CONTEXT_MSG_3_008")

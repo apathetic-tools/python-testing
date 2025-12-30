@@ -46,10 +46,10 @@ __all__ = [
 ]
 
 # Re-export fixtures from fixtures for pytest discovery
-apathetic_logger = mod_logging_fixtures.apathetic_logger
-isolated_logging = mod_logging_fixtures.isolated_logging
+atest_apathetic_logger = mod_logging_fixtures.atest_apathetic_logger
+atest_isolated_logging = mod_logging_fixtures.atest_isolated_logging
 logging_level_testing = mod_logging_fixtures.logging_level_testing
-logging_test_level = mod_logging_fixtures.logging_test_level
+atest_logging_test_level = mod_logging_fixtures.atest_logging_test_level
 
 safe_trace = alib_logging.makeSafeTrace("⚡️")
 

@@ -24,7 +24,7 @@ MAX_EXPECTED_LINES = 3
 
 
 def test_sequential_use_root_level_single_message(
-    isolated_logging: Any,  # noqa: ARG001
+    atest_isolated_logging: Any,  # noqa: ARG001
 ) -> None:
     """Verify sequential useRootLevel calls don't cause message duplication.
 
@@ -85,7 +85,7 @@ def test_sequential_use_root_level_single_message(
 
 
 def test_sequential_use_root_level_multiple_iterations(
-    isolated_logging: Any,  # noqa: ARG001
+    atest_isolated_logging: Any,  # noqa: ARG001
 ) -> None:
     """Verify multiple sequential useRootLevel calls all produce correct output."""
     logger = logging.getLogger("test_multi")
@@ -120,7 +120,7 @@ def test_sequential_use_root_level_multiple_iterations(
 
 
 def test_sequential_use_root_level_with_stream_changes(
-    isolated_logging: Any,  # noqa: ARG001
+    atest_isolated_logging: Any,  # noqa: ARG001
 ) -> None:
     """Simulate pytest capsys behavior: replacing streams between uses.
 
@@ -180,7 +180,7 @@ def test_sequential_use_root_level_with_stream_changes(
 
 
 def test_use_root_level_clears_stream_cache(
-    isolated_logging: Any,  # noqa: ARG001
+    atest_isolated_logging: Any,  # noqa: ARG001
 ) -> None:
     """Verify that useRootLevel properly clears the stream cache.
 

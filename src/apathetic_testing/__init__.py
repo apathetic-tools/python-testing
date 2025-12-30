@@ -56,18 +56,26 @@ create_mock_superclass_test = apathetic_testing.create_mock_superclass_test
 # Testing - Patch
 patch_everywhere = apathetic_testing.patch_everywhere
 
+# Testing - Logging Fixtures
+LoggingIsolation = apathetic_testing.LoggingIsolation
+LoggingTestLevel = apathetic_testing.LoggingTestLevel
+LoggingLevelTesting = apathetic_testing.LoggingLevelTesting
+
 
 __all__ = [  # noqa: RUF022
-    # system
+    # runtime
+    "detect_module_runtime_mode",
     "ensure_stitched_script_up_to_date",
     "ensure_zipapp_up_to_date",
     "runtime_swap",
-    # testing - runtime
-    "detect_module_runtime_mode",
-    # testing - pytest
+    # pytest
     "is_running_under_pytest",
-    # testing - mock
+    # mock
     "create_mock_superclass_test",
-    # testing - patch
+    # patch
     "patch_everywhere",
+    # fixtures
+    "LoggingIsolation",
+    "LoggingTestLevel",
+    "LoggingLevelTesting",
 ]
