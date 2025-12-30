@@ -1,4 +1,4 @@
-# tests/30_independant/test_is_running_under_pytest.py
+# tests/30_unit/test_is_running_under_pytest.py
 """Tests for is_running_under_pytest function.
 
 Tests for is_running_under_pytest, including detection via environment

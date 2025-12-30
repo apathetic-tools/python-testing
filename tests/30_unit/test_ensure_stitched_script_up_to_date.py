@@ -1,4 +1,4 @@
-# tests/30_independant/test_ensure_stitched_script_up_to_date.py
+# tests/30_unit/test_ensure_stitched_script_up_to_date.py
 """Tests for ensure_stitched_script_up_to_date function.
 
 Tests for ensure_stitched_script_up_to_date, including optional script_name

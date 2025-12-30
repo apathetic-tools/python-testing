@@ -1,4 +1,4 @@
-# tests/30_independant/test_atest_isolated_logging.py
+# tests/30_unit/test_atest_isolated_logging.py
 """Tests for atest_isolated_logging fixture.
 
 Tests for atest_isolated_logging, including logger state reset, isolation

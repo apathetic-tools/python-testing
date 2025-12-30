@@ -1,4 +1,4 @@
-# tests/30_independant/test_runtime_swap.py
+# tests/30_unit/test_runtime_swap.py
 """Tests for runtime_swap function.
 
 Tests for runtime_swap, including optional script_name parameter behavior

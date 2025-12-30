@@ -1,4 +1,4 @@
-# tests/30_independant/test_atest_logging_test_level.py
+# tests/30_unit/test_atest_logging_test_level.py
 """Tests for atest_logging_test_level fixture.
 
 Tests for atest_logging_test_level, including downgrade prevention and

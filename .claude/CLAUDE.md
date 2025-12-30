@@ -65,7 +65,7 @@ See: `pyproject.toml` (configs/tasks), `ROADMAP.md` (roadmap)
 ### PyTest Structure
 
 ## Packages
-- Only `tests/` and `tests/utils/` should have `__init__.py`. Do NOT add `__init__.py` to test subdirectories (e.g., `tests/0_tooling/`, `tests/3_independant/`, `tests/5_core/`, etc.). Test subdirectories are not Python packages.
+- Only `tests/` and `tests/utils/` should have `__init__.py`. Do NOT add `__init__.py` to test subdirectories (e.g., `tests/0_tooling/`, `tests/3_unit/`, `tests/5_core/`, etc.). Test subdirectories are not Python packages.
 - Use `tests/utils/` to colocate utilities that are generally helpful for tests or used in multiple test files.
 
 ## Imports

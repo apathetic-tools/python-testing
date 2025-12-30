@@ -1,4 +1,4 @@
-# tests/30_independant/test_has_pytest_user_config.py
+# tests/30_unit/test_has_pytest_user_config.py
 """Tests for has_pytest_user_config function.
 
 Tests for has_pytest_user_config, including detection via config files,

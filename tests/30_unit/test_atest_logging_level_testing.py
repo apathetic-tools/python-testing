@@ -1,4 +1,4 @@
-# tests/30_independant/test_atest_logging_level_testing.py
+# tests/30_unit/test_atest_logging_level_testing.py
 """Tests for atest_logging_level_testing fixture.
 
 Tests for atest_logging_level_testing, including level change tracking,
