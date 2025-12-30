@@ -1,8 +1,23 @@
 # src/apathetic_testing/runtime.py
 """Build and runtime utilities for testing.
 
-Note: Runtime testing functions have been moved to apathetic-utils.
-Only functions needed for testing in apathetic-testing remain.
+This module provides test infrastructure for multi-runtime testing (package,
+stitched, zipapp). Note the distinction between functions in this module and
+those in apathetic-utils:
+
+**apathetic-testing** (this module):
+- `detect_module_runtime_mode()` — Detects which runtime a specific MODULE was
+  loaded from. Used in test infrastructure to verify correct module loading
+  across different build modes. Needed only in dev environments.
+
+**apathetic-utils** (runtime dependency):
+- `detect_runtime_mode()` — Detects which runtime the current PROCESS is
+  executing under. Used by CLI tools for features like --version, CI detection,
+  etc. Needed at runtime by end-user applications.
+
+The separation reflects their different purposes and dependency contexts:
+apathetic-testing is a devDependency (testing only), while apathetic-utils
+is a runtime dependency (used by CLI tools that depend on it).
 """
 
 from __future__ import annotations

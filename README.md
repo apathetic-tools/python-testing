@@ -11,7 +11,7 @@
 
 *Apathetic Python Testing* provides a focused collection of pytest fixtures and utilities designed for Apathetic Tools projects. It helps you test CLI applications, logging behavior, and code that ships as stitched scripts or zipapps.
 
-Some ways to generate stitched scripts are [serger](https://github.com/apathetic-tools/serger); and for zipapps: [zipbundler](Runtime-aware pytest extensions. ) or stdlib's [zipapp](https://docs.python.org/3/library/zipapp.html).
+Some ways to generate stitched scripts are [serger](https://github.com/apathetic-tools/serger); and for zipapps: [zipbundler](https://github.com/apathetic-tools/zipbundler) or stdlib's [zipapp](https://docs.python.org/3/library/zipapp.html).
 
 > [!NOTE]
 > Heads up: the AI cooked dinner. It's edible, but watch your step.  
