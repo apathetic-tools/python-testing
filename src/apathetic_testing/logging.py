@@ -45,16 +45,13 @@ import uuid
 from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Literal, TypeAlias
+from typing import Any, Literal
 
 import apathetic_logging
 import pytest
 from typing_extensions import Self
 
-
-# Type alias for apathetic-logging Logger
-# Using Any to avoid circular imports and TYPE_CHECKING complexity
-Logger: TypeAlias = Any
+from apathetic_testing.constants import ApatheticTest_Internal_Constants
 
 
 # ============================================================================
@@ -64,6 +61,44 @@ Logger: TypeAlias = Any
 
 class ApatheticTest_Internal_Logging:  # noqa: N801  # pyright: ignore[reportUnusedClass]
     """Mixin class providing logging-related utilities."""
+
+    @dataclass(frozen=True)
+    class RootLoggerState:
+        """Snapshot of root logger state."""
+
+        level: int
+        """The explicit log level set on the root logger."""
+
+        handlers: list[logging.Handler]
+        """List of handlers attached to the root logger."""
+
+        propagate: bool
+        """Whether the root logger propagates to parent (always False for root)."""
+
+        disabled: bool
+        """Disabled state of the root logger."""
+
+        filters: list[logging.Filter]
+        """List of filters attached to the root logger."""
+
+    @dataclass(frozen=True)
+    class LoggingState:
+        """Complete snapshot of logging state for save/restore."""
+
+        logger_class: type[logging.Logger]
+        """The registered logger class."""
+
+        registry_data: dict[str, Any]
+        """Registry data (8 configurable fields)."""
+
+        root_logger_user_configured: bool | None
+        """Value of _root_logger_user_configured flag."""
+
+        logger_dict: dict[str, logging.Logger | logging.PlaceHolder]
+        """Copy of logging.Logger.manager.loggerDict."""
+
+        root_logger_state: ApatheticTest_Internal_Logging.RootLoggerState
+        """Snapshot of root logger's state."""
 
     @staticmethod
     def assert_level_equals(
@@ -92,8 +127,8 @@ class ApatheticTest_Internal_Logging:  # noqa: N801  # pyright: ignore[reportUnu
         actual = logger.getEffectiveLevel() if effective else logger.level
 
         if actual != expected_int:
-            expected_name = logging.getLevelName(expected_int)
-            actual_name = logging.getLevelName(actual)
+            expected_name = apathetic_logging.getLevelNameStr(expected_int)
+            actual_name = apathetic_logging.getLevelNameStr(actual)
             msg = (
                 f"Expected logger level {expected_name} ({expected_int}), "
                 f"but got {actual_name} ({actual})"
@@ -112,10 +147,10 @@ class ApatheticTest_Internal_Logging:  # noqa: N801  # pyright: ignore[reportUnu
         Raises:
             AssertionError: If the levels don't match.
         """
-        root = logging.getLogger("")
-        ApatheticTest_Internal_Logging.assert_level_equals(
-            root, expected, effective=False
-        )
+        _constants = ApatheticTest_Internal_Constants
+        _logging = ApatheticTest_Internal_Logging
+        root = logging.getLogger(_constants.ROOT_LOGGER_KEY)
+        _logging.assert_level_equals(root, expected, effective=False)
 
     @staticmethod
     def assert_handler_count(
@@ -148,7 +183,7 @@ class ApatheticTest_Internal_Logging:  # noqa: N801  # pyright: ignore[reportUnu
             raise AssertionError(msg)
 
     @staticmethod
-    def save_logging_state() -> _apathetic_testing_priv_LoggingState:
+    def save_logging_state() -> ApatheticTest_Internal_Logging.LoggingState:
         """Save the complete logging state.
 
         This saves everything needed to restore logging to its current state,
@@ -158,18 +193,156 @@ class ApatheticTest_Internal_Logging:  # noqa: N801  # pyright: ignore[reportUnu
         Returns:
             LoggingState: A snapshot of the current logging state.
         """
-        return _apathetic_testing_priv_save_logging_state()
+        _constants = ApatheticTest_Internal_Constants
+        _logging = ApatheticTest_Internal_Logging
+
+        # Save logger class
+        logger_class = logging.getLoggerClass()
+
+        # Save registry data (8 fields)
+        # In package mode: module exports the class via __init__.py
+        # In stitched mode: the class is available directly
+        registry: Any = (
+            apathetic_logging.apathetic_logging
+            if hasattr(apathetic_logging, "apathetic_logging")
+            else apathetic_logging
+        )
+        registry_data = {
+            "registered_internal_logger_name": (
+                registry.registered_internal_logger_name
+            ),
+            "registered_internal_default_log_level": (
+                registry.registered_internal_default_log_level
+            ),
+            "registered_internal_log_level_env_vars": (
+                registry.registered_internal_log_level_env_vars
+            ),
+            "registered_internal_compatibility_mode": (
+                registry.registered_internal_compatibility_mode
+            ),
+            "registered_internal_propagate": (registry.registered_internal_propagate),
+            "registered_internal_replace_root_logger": (
+                registry.registered_internal_replace_root_logger
+            ),
+            "registered_internal_port_handlers": (
+                registry.registered_internal_port_handlers
+            ),
+            "registered_internal_port_level": (registry.registered_internal_port_level),
+        }
+
+        # Save _root_logger_user_configured flag
+        logger_module = sys.modules.get("apathetic_logging.logger")
+        root_logger_user_configured = (
+            getattr(logger_module, "_root_logger_user_configured", None)
+            if logger_module
+            else None
+        )
+
+        # Save logger dict (copy the dict, not the loggers themselves)
+        logger_dict = logging.Logger.manager.loggerDict.copy()
+
+        # Save root logger state
+        root = logging.getLogger(_constants.ROOT_LOGGER_KEY)
+        root_logger_state = _logging.RootLoggerState(
+            level=root.level,
+            handlers=root.handlers.copy(),
+            propagate=root.propagate,
+            disabled=root.disabled,
+            filters=[f for f in root.filters if isinstance(f, logging.Filter)],
+        )
+
+        return _logging.LoggingState(
+            logger_class=logger_class,
+            registry_data=registry_data,
+            root_logger_user_configured=root_logger_user_configured,
+            logger_dict=logger_dict,
+            root_logger_state=root_logger_state,
+        )
 
     @staticmethod
     def restore_logging_state(
-        state: _apathetic_testing_priv_LoggingState,
+        state: ApatheticTest_Internal_Logging.LoggingState,
     ) -> None:
         """Restore logging to a previously saved state.
 
         Args:
             state: The LoggingState to restore from.
         """
-        _apathetic_testing_priv_restore_logging_state(state)
+        _constants = ApatheticTest_Internal_Constants
+
+        # Restore logger class
+        logging.setLoggerClass(state.logger_class)
+
+        # Restore registry data
+        # In package mode: module exports the class via __init__.py
+        # In stitched mode: the class is available directly
+        registry: Any = (
+            apathetic_logging.apathetic_logging
+            if hasattr(apathetic_logging, "apathetic_logging")
+            else apathetic_logging
+        )
+        registry.registered_internal_logger_name = state.registry_data[
+            "registered_internal_logger_name"
+        ]
+        registry.registered_internal_default_log_level = state.registry_data[
+            "registered_internal_default_log_level"
+        ]
+        registry.registered_internal_log_level_env_vars = state.registry_data[
+            "registered_internal_log_level_env_vars"
+        ]
+        registry.registered_internal_compatibility_mode = state.registry_data[
+            "registered_internal_compatibility_mode"
+        ]
+        registry.registered_internal_propagate = state.registry_data[
+            "registered_internal_propagate"
+        ]
+        registry.registered_internal_replace_root_logger = state.registry_data[
+            "registered_internal_replace_root_logger"
+        ]
+        registry.registered_internal_port_handlers = state.registry_data[
+            "registered_internal_port_handlers"
+        ]
+        registry.registered_internal_port_level = state.registry_data[
+            "registered_internal_port_level"
+        ]
+
+        # Restore _root_logger_user_configured flag
+        logger_module = sys.modules.get("apathetic_logging.logger")
+        if logger_module:
+            if state.root_logger_user_configured is None:
+                if hasattr(logger_module, "_root_logger_user_configured"):
+                    delattr(logger_module, "_root_logger_user_configured")
+            else:
+                logger_module._root_logger_user_configured = (  # type: ignore[attr-defined]  # noqa: SLF001
+                    state.root_logger_user_configured
+                )
+
+        # Restore logger dict (remove all current, restore from saved)
+        current_names = list(logging.Logger.manager.loggerDict.keys())
+        for name in current_names:
+            logging.Logger.manager.loggerDict.pop(name, None)
+
+        for name, logger in state.logger_dict.items():
+            logging.Logger.manager.loggerDict[name] = logger
+
+        # Restore root logger state
+        root = logging.getLogger(_constants.ROOT_LOGGER_KEY)
+        root.setLevel(state.root_logger_state.level)
+        root.propagate = state.root_logger_state.propagate
+        root.disabled = state.root_logger_state.disabled
+
+        # Clear current handlers
+        root.handlers.clear()
+
+        # Restore handlers
+        for handler in state.root_logger_state.handlers:
+            root.addHandler(handler)
+
+        # Restore filters
+        if hasattr(root, "filters"):
+            root.filters.clear()
+            for filt in state.root_logger_state.filters:
+                root.addFilter(filt)
 
     @staticmethod
     def clear_all_loggers() -> None:
@@ -177,52 +350,10 @@ class ApatheticTest_Internal_Logging:  # noqa: N801  # pyright: ignore[reportUnu
 
         This is useful for test cleanup to ensure a clean state for the next test.
         """
-        _apathetic_testing_priv_clear_all_loggers()
-
-
-# ============================================================================
-# State Management Classes
-# ============================================================================
-
-
-@dataclass(frozen=True)
-class _apathetic_testing_priv_RootLoggerState:  # noqa: N801
-    """Snapshot of root logger state."""
-
-    level: int
-    """The explicit log level set on the root logger."""
-
-    handlers: list[logging.Handler]
-    """List of handlers attached to the root logger."""
-
-    propagate: bool
-    """Whether the root logger propagates to parent (always False for root)."""
-
-    disabled: bool
-    """Disabled state of the root logger."""
-
-    filters: list[logging.Filter]
-    """List of filters attached to the root logger."""
-
-
-@dataclass(frozen=True)
-class _apathetic_testing_priv_LoggingState:  # noqa: N801
-    """Complete snapshot of logging state for save/restore."""
-
-    logger_class: type[logging.Logger]
-    """The registered logger class."""
-
-    registry_data: dict[str, Any]
-    """Registry data (8 configurable fields)."""
-
-    root_logger_user_configured: bool | None
-    """Value of _root_logger_user_configured flag."""
-
-    logger_dict: dict[str, logging.Logger | logging.PlaceHolder]
-    """Copy of logging.Logger.manager.loggerDict."""
-
-    root_logger_state: _apathetic_testing_priv_RootLoggerState
-    """Snapshot of root logger's state."""
+        logger_names = list(logging.Logger.manager.loggerDict.keys())
+        for name in logger_names:
+            if name not in {"root", ""}:
+                logging.Logger.manager.loggerDict.pop(name, None)
 
 
 # ============================================================================
@@ -236,7 +367,9 @@ class _apathetic_testing_priv_LoggingIsolation:  # noqa: N801
     Provides utilities for managing logger state during a test.
     """
 
-    def __init__(self, saved_state: _apathetic_testing_priv_LoggingState) -> None:
+    def __init__(
+        self, saved_state: ApatheticTest_Internal_Logging.LoggingState
+    ) -> None:
         """Initialize with saved state.
 
         Args:
@@ -253,7 +386,8 @@ class _apathetic_testing_priv_LoggingIsolation:  # noqa: N801
         Raises:
             AssertionError: If the levels don't match.
         """
-        root = logging.getLogger("")
+        _constants = ApatheticTest_Internal_Constants
+        root = logging.getLogger(_constants.ROOT_LOGGER_KEY)
         expected_int = (
             apathetic_logging.getLevelNumber(expected)
             if isinstance(expected, str)
@@ -262,8 +396,8 @@ class _apathetic_testing_priv_LoggingIsolation:  # noqa: N801
         actual = root.level
 
         if actual != expected_int:
-            expected_name = logging.getLevelName(expected_int)
-            actual_name = logging.getLevelName(actual)
+            expected_name = apathetic_logging.getLevelNameStr(expected_int)
+            actual_name = apathetic_logging.getLevelNameStr(actual)
             msg = (
                 f"Expected root logger level {expected_name} ({expected_int}), "
                 f"but got {actual_name} ({actual})"
@@ -289,8 +423,8 @@ class _apathetic_testing_priv_LoggingIsolation:  # noqa: N801
         actual = logger.level
 
         if actual != expected_int:
-            expected_name = logging.getLevelName(expected_int)
-            actual_name = logging.getLevelName(actual)
+            expected_name = apathetic_logging.getLevelNameStr(expected_int)
+            actual_name = apathetic_logging.getLevelNameStr(actual)
             msg = (
                 f"Expected logger '{name}' level {expected_name} ({expected_int}), "
                 f"but got {actual_name} ({actual})"
@@ -401,7 +535,8 @@ class _apathetic_testing_priv_LoggingTestLevel:  # noqa: N801
         Returns:
             The numeric log level of the root logger.
         """
-        return logging.getLogger("").level
+        _constants = ApatheticTest_Internal_Constants
+        return logging.getLogger(_constants.ROOT_LOGGER_KEY).level
 
     @contextmanager
     def temporarily_allow_changes(self) -> Generator[None, None, None]:
@@ -484,7 +619,7 @@ class _apathetic_testing_priv_LoggingLevelTesting:  # noqa: N801
         Args:
             level_int: The numeric level value.
         """
-        level_name = logging.getLevelName(level_int)
+        level_name = apathetic_logging.getLevelNameStr(level_int)
         timestamp = time.time()
         self._history.append((timestamp, level_int, level_name))
 
@@ -527,8 +662,8 @@ class _apathetic_testing_priv_LoggingLevelTesting:  # noqa: N801
                 return  # Found it
 
         # Not found, raise error
-        old_name = logging.getLevelName(old_int)
-        to_name = logging.getLevelName(to_int)
+        old_name = apathetic_logging.getLevelNameStr(old_int)
+        to_name = apathetic_logging.getLevelNameStr(to_int)
         history_names = [h[2] for h in self._history]
         msg = (
             f"Expected level change from {old_name} to {to_name}, "
@@ -565,174 +700,6 @@ class _apathetic_testing_priv_LoggingLevelTesting:  # noqa: N801
 # ============================================================================
 
 
-def _apathetic_testing_priv_save_logging_state() -> (
-    _apathetic_testing_priv_LoggingState
-):
-    """Save the complete logging state.
-
-    This saves everything needed to restore logging to its current state,
-    including logger class, registry data, user configuration flags, all
-    loggers in the registry, and the root logger's state.
-
-    Returns:
-        LoggingState: A snapshot of the current logging state.
-    """
-    # Save logger class
-    logger_class = logging.getLoggerClass()
-
-    # Save registry data (8 fields)
-    # In package mode: module exports the class via __init__.py
-    # In stitched mode: the class is available directly
-    registry: Any = (
-        apathetic_logging.apathetic_logging
-        if hasattr(apathetic_logging, "apathetic_logging")
-        else apathetic_logging
-    )
-    registry_data = {
-        "registered_internal_logger_name": (registry.registered_internal_logger_name),
-        "registered_internal_default_log_level": (
-            registry.registered_internal_default_log_level
-        ),
-        "registered_internal_log_level_env_vars": (
-            registry.registered_internal_log_level_env_vars
-        ),
-        "registered_internal_compatibility_mode": (
-            registry.registered_internal_compatibility_mode
-        ),
-        "registered_internal_propagate": registry.registered_internal_propagate,
-        "registered_internal_replace_root_logger": (
-            registry.registered_internal_replace_root_logger
-        ),
-        "registered_internal_port_handlers": (
-            registry.registered_internal_port_handlers
-        ),
-        "registered_internal_port_level": (registry.registered_internal_port_level),
-    }
-
-    # Save _root_logger_user_configured flag
-    logger_module = sys.modules.get("apathetic_logging.logger")
-    root_logger_user_configured = (
-        getattr(logger_module, "_root_logger_user_configured", None)
-        if logger_module
-        else None
-    )
-
-    # Save logger dict (copy the dict, not the loggers themselves)
-    logger_dict = logging.Logger.manager.loggerDict.copy()
-
-    # Save root logger state
-    root = logging.getLogger("")
-    root_logger_state = _apathetic_testing_priv_RootLoggerState(
-        level=root.level,
-        handlers=root.handlers.copy(),
-        propagate=root.propagate,
-        disabled=root.disabled,
-        filters=[f for f in root.filters if isinstance(f, logging.Filter)],
-    )
-
-    return _apathetic_testing_priv_LoggingState(
-        logger_class=logger_class,
-        registry_data=registry_data,
-        root_logger_user_configured=root_logger_user_configured,
-        logger_dict=logger_dict,
-        root_logger_state=root_logger_state,
-    )
-
-
-def _apathetic_testing_priv_restore_logging_state(
-    state: _apathetic_testing_priv_LoggingState,
-) -> None:
-    """Restore logging to a previously saved state.
-
-    Args:
-        state: The LoggingState to restore from.
-    """
-    # Restore logger class
-    logging.setLoggerClass(state.logger_class)
-
-    # Restore registry data
-    # In package mode: module exports the class via __init__.py
-    # In stitched mode: the class is available directly
-    registry: Any = (
-        apathetic_logging.apathetic_logging
-        if hasattr(apathetic_logging, "apathetic_logging")
-        else apathetic_logging
-    )
-    registry.registered_internal_logger_name = state.registry_data[
-        "registered_internal_logger_name"
-    ]
-    registry.registered_internal_default_log_level = state.registry_data[
-        "registered_internal_default_log_level"
-    ]
-    registry.registered_internal_log_level_env_vars = state.registry_data[
-        "registered_internal_log_level_env_vars"
-    ]
-    registry.registered_internal_compatibility_mode = state.registry_data[
-        "registered_internal_compatibility_mode"
-    ]
-    registry.registered_internal_propagate = state.registry_data[
-        "registered_internal_propagate"
-    ]
-    registry.registered_internal_replace_root_logger = state.registry_data[
-        "registered_internal_replace_root_logger"
-    ]
-    registry.registered_internal_port_handlers = state.registry_data[
-        "registered_internal_port_handlers"
-    ]
-    registry.registered_internal_port_level = state.registry_data[
-        "registered_internal_port_level"
-    ]
-
-    # Restore _root_logger_user_configured flag
-    logger_module = sys.modules.get("apathetic_logging.logger")
-    if logger_module:
-        if state.root_logger_user_configured is None:
-            if hasattr(logger_module, "_root_logger_user_configured"):
-                delattr(logger_module, "_root_logger_user_configured")
-        else:
-            logger_module._root_logger_user_configured = (  # type: ignore[attr-defined]  # noqa: SLF001
-                state.root_logger_user_configured
-            )
-
-    # Restore logger dict (remove all current, restore from saved)
-    current_names = list(logging.Logger.manager.loggerDict.keys())
-    for name in current_names:
-        logging.Logger.manager.loggerDict.pop(name, None)
-
-    for name, logger in state.logger_dict.items():
-        logging.Logger.manager.loggerDict[name] = logger
-
-    # Restore root logger state
-    root = logging.getLogger("")
-    root.setLevel(state.root_logger_state.level)
-    root.propagate = state.root_logger_state.propagate
-    root.disabled = state.root_logger_state.disabled
-
-    # Clear current handlers
-    root.handlers.clear()
-
-    # Restore handlers
-    for handler in state.root_logger_state.handlers:
-        root.addHandler(handler)
-
-    # Restore filters
-    if hasattr(root, "filters"):
-        root.filters.clear()
-        for filt in state.root_logger_state.filters:
-            root.addFilter(filt)
-
-
-def _apathetic_testing_priv_clear_all_loggers() -> None:
-    """Remove all loggers from the logging registry except the root logger.
-
-    This is useful for test cleanup to ensure a clean state for the next test.
-    """
-    logger_names = list(logging.Logger.manager.loggerDict.keys())
-    for name in logger_names:
-        if name not in {"root", ""}:
-            logging.Logger.manager.loggerDict.pop(name, None)
-
-
 # ============================================================================
 # Pytest Fixtures
 # ============================================================================
@@ -759,19 +726,27 @@ def isolated_logging() -> Generator[
 
     Example:
         def test_logger_isolation(isolated_logging):
+            _constants = ApatheticTest_Internal_Constants
             apathetic_logging.setRootLevel("DEBUG")
-            assert logging.getLogger("").level == logging.DEBUG
+            assert (
+                logging.getLogger(_constants.ROOT_LOGGER_KEY).level
+                == logging.DEBUG
+            )
 
         def test_no_state_bleeding(isolated_logging):
             # Previous test's state is not present here
-            root = logging.getLogger("")
+            _constants = ApatheticTest_Internal_Constants
+            root = logging.getLogger(_constants.ROOT_LOGGER_KEY)
             assert root.level != logging.DEBUG
     """
+    _constants = ApatheticTest_Internal_Constants
+    _logging = ApatheticTest_Internal_Logging
+
     # Save state
-    saved_state = _apathetic_testing_priv_save_logging_state()
+    saved_state = _logging.save_logging_state()
 
     # Clear all loggers
-    _apathetic_testing_priv_clear_all_loggers()
+    _logging.clear_all_loggers()
 
     # Reset to defaults (via apathetic_logging's defaults)
     try:
@@ -781,7 +756,7 @@ def isolated_logging() -> Generator[
         logging.setLoggerClass(logging.Logger)
 
     # Explicitly reset root logger to default level (WARNING)
-    root = logging.getLogger("")
+    root = logging.getLogger(_constants.ROOT_LOGGER_KEY)
     root.setLevel(logging.WARNING)
 
     # Create and yield helper
@@ -789,10 +764,10 @@ def isolated_logging() -> Generator[
     yield isolation
 
     # Cleanup: Remove all loggers again
-    _apathetic_testing_priv_clear_all_loggers()
+    _logging.clear_all_loggers()
 
     # Restore state
-    _apathetic_testing_priv_restore_logging_state(saved_state)
+    _logging.restore_logging_state(saved_state)
 
 
 @pytest.fixture
@@ -961,7 +936,7 @@ class _apathetic_testing_priv_StreamCapture:  # noqa: N801
 
 
 @pytest.fixture
-def apathetic_logger() -> Logger:
+def apathetic_logger() -> logging.Logger:
     """Fixture providing a test logger with a unique name.
 
     This fixture creates a new logger with a unique name and sets it to

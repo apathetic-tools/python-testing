@@ -11,4 +11,8 @@ class ApatheticTest_Internal_Constants:  # noqa: N801  # pyright: ignore[reportU
     It's kept separate for organizational purposes.
     """
 
-    # Constants will be added here as utilities are implemented
+    ROOT_LOGGER_KEY: str = ""
+    """Key used to retrieve the root logger via logging.getLogger("").
+
+    The root logger is retrieved using an empty string as the logger name.
+    """
