@@ -11,15 +11,16 @@ Integration patterns and examples for Apathetic Python Testing fixtures and util
 ## Table of Contents
 
 1. [Basic Integration](#basic-integration)
-2. [Disabling Pytest Plugins](#disabling-pytest-plugins)
-3. [Testing with Isolated Logging](#testing-with-isolated-logging)
-4. [Debugging with TEST Level](#debugging-with-test-level)
-5. [Testing Log Level Changes](#testing-log-level-changes)
-6. [Safe Patching](#safe-patching)
-7. [Testing Runtime Modes](#testing-runtime-modes)
-8. [Mock Superclass Testing](#mock-superclass-testing)
-9. [Common Patterns](#common-patterns)
-10. [Best Practices](#best-practices)
+2. [Pytest Plugins Overview](#pytest-plugins-overview)
+3. [Disabling Pytest Plugins](#disabling-pytest-plugins)
+4. [Testing with Isolated Logging](#testing-with-isolated-logging)
+5. [Debugging with TEST Level](#debugging-with-test-level)
+6. [Testing Log Level Changes](#testing-log-level-changes)
+7. [Safe Patching](#safe-patching)
+8. [Testing Runtime Modes](#testing-runtime-modes)
+9. [Mock Superclass Testing](#mock-superclass-testing)
+10. [Common Patterns](#common-patterns)
+11. [Best Practices](#best-practices)
 
 ## Basic Integration
 
@@ -52,6 +53,19 @@ pytest_plugins = [
 ```
 
 This registers all fixtures from the module automatically.
+
+## Pytest Plugins Overview
+
+When you install `apathetic-testing`, several pytest plugins are automatically registered and loaded:
+
+- **`pytest_timeout_defaults`** — Provides sensible timeout defaults (60 seconds)
+- **`pytest_xdist_quiet`** — Suppresses benchmark warnings when running with xdist
+- **`pytest_apathetic_logging`** — Provides logging fixtures and autouse logger reset
+- **`pytest_debug`** — Filters tests marked with `@pytest.mark.debug`
+- **`pytest_quiet`** — Adjusts output verbosity
+- **`pytest_runtime`** — Runtime mode reporting
+
+For detailed information about the timeout and xdist quiet plugins, see the **[Pytest Plugins]({{ '/pytest-plugins' | relative_url }})** documentation. This includes information about the `has_pytest_user_config()` helper function used to create plugins that respect user overrides.
 
 ## Disabling Pytest Plugins
 

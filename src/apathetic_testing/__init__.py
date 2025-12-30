@@ -49,6 +49,7 @@ detect_module_runtime_mode = apathetic_testing.detect_module_runtime_mode
 
 # Testing - Pytest
 is_running_under_pytest = apathetic_testing.is_running_under_pytest
+has_pytest_user_config = apathetic_testing.has_pytest_user_config
 
 # Testing - Mock
 create_mock_superclass_test = apathetic_testing.create_mock_superclass_test
@@ -82,6 +83,7 @@ __all__ = [  # noqa: RUF022
     "runtime_swap",
     # pytest
     "is_running_under_pytest",
+    "has_pytest_user_config",
     # mock
     "create_mock_superclass_test",
     # patch

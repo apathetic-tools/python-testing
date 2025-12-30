@@ -78,6 +78,7 @@ pip install apathetic-testing
 
 - **[Usage Guide]({{ '/usage' | relative_url }})** — Integration patterns and best practices
 - **[API Reference]({{ '/reference' | relative_url }})** — Complete API documentation
+- **[Pytest Plugins]({{ '/pytest-plugins' | relative_url }})** — Built-in plugins documentation
 - **[Contributing]({{ '/contributing' | relative_url }})** — How to contribute
 
 ## License

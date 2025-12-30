@@ -21,9 +21,13 @@ alib_test.runtime_swap()
 # - pytest_debug: filters @pytest.mark.debug tests (opt-in via -k debug)
 # - pytest_quiet: adjusts output based on verbosity level
 # - pytest_runtime: runtime mode filtering and reporting
+# - pytest_timeout_defaults: sets default timeout for tests
+# - pytest_xdist_quiet: suppresses benchmark warnings when running with xdist
 pytest_plugins = [
     "pytest_apathetic_logging",
     "pytest_debug",
     "pytest_quiet",
     "pytest_runtime",
+    "pytest_timeout_defaults",
+    "pytest_xdist_quiet",
 ]

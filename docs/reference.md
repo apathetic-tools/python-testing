@@ -15,7 +15,7 @@ Complete API documentation for Apathetic Python Testing.
 | **Logging Fixtures** | [`isolated_logging`](#isolated_logging), [`logging_test_level`](#logging_test_level), [`logging_level_testing`](#logging_level_testing) |
 | **Patching** | [`patch_everywhere()`](#patch_everywhere) |
 | **Runtime Testing** | [`runtime_swap`](#runtime_swap), [`detect_module_runtime_mode()`](#detect_module_runtime_mode) |
-| **System Detection** | [`is_running_under_pytest()`](#is_running_under_pytest) |
+| **System Detection** | [`is_running_under_pytest()`](#is_running_under_pytest), [`has_pytest_user_config()`](#has_pytest_user_config) |
 | **Mock Utilities** | [`create_mock_superclass_test()`](#create_mock_superclass_test) |
 | **Build Utilities** | [`ensure_stitched_script_up_to_date()`](#ensure_stitched_script_up_to_date), [`ensure_zipapp_up_to_date()`](#ensure_zipapp_up_to_date) |
 
@@ -234,6 +234,55 @@ if is_running_under_pytest():
     # Use test-specific configuration
     pass
 ```
+
+---
+
+### has_pytest_user_config
+
+**Type:** Static method
+
+**Import from:** `apathetic_testing.pytest`
+
+**Signature:**
+```python
+@staticmethod
+def has_pytest_user_config(config: pytest.Config, option_name: str) -> bool
+```
+
+Determine if a pytest option has been configured by the user via any configuration method.
+
+**Parameters:**
+- `config` (pytest.Config) — The pytest Config object (from pytest hooks)
+- `option_name` (str) — Name of the option to check (e.g., `"timeout"`, `"markers"`)
+
+**Returns:** `True` if the user has configured the option, `False` otherwise
+
+**Configuration Sources Checked (in order):**
+1. Config file and environment variables (via `config.getini()`) — checks `pytest.ini`, `pyproject.toml`, and environment variables like `PYTEST_TIMEOUT`
+2. CLI flags (via `config.getoption()`) — checks command-line arguments like `--timeout=60`
+
+**Example:**
+```python
+import apathetic_testing.pytest as ap_pytest
+
+def pytest_configure(config):
+    """Custom pytest plugin that respects user configuration."""
+    has_timeout = ap_pytest.ApatheticTest_Internal_Pytest.has_pytest_user_config(
+        config, "timeout"
+    )
+
+    if not has_timeout:
+        # Only apply default if user hasn't configured it
+        config.inicfg["timeout"] = 60
+```
+
+**Use Cases:**
+- Create pytest plugins that provide sensible defaults without overriding user configuration
+- Check multiple options to determine plugin behavior
+- Respect all configuration methods (config files, environment variables, CLI flags)
+
+**See Also:**
+- [Pytest Plugins](/pytest-plugins/) — Documentation for built-in plugins that use this helper
 
 ---
 
