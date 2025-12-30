@@ -81,7 +81,7 @@ class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnu
             raise TypeError(msg)
 
         # Check for stitched markers first (most reliable)
-        if hasattr(mod, "__STITCHED__") or hasattr(mod, "__STANDALONE__"):
+        if hasattr(mod, "__STITCHED__"):
             return "stitched"
 
         # Check for zipapp and stitched by looking at __file__ path
@@ -93,6 +93,31 @@ class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnu
 
         # Default to package mode
         return "package"
+
+    @staticmethod
+    def _parse_cli_flag(flag_name: str) -> str | None:
+        """Parse CLI flag from sys.argv.
+
+        Supports both --flag=value and --flag value formats.
+
+        Args:
+            flag_name: Name of the flag (without -- prefix)
+
+        Returns:
+            Flag value if found, None otherwise
+        """
+        flag_with_dashes = f"--{flag_name}"
+        flag_with_equals = f"--{flag_name}="
+
+        for i, arg in enumerate(sys.argv):
+            # Check for --flag=value format
+            if arg.startswith(flag_with_equals):
+                return arg[len(flag_with_equals) :]
+            # Check for --flag value format
+            if arg == flag_with_dashes and i + 1 < len(sys.argv):
+                return sys.argv[i + 1]
+
+        return None
 
     @staticmethod
     def _check_needs_rebuild(output_path: Path, src_dir: Path) -> bool:
@@ -320,11 +345,13 @@ class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnu
         stitch_command: str | None = None,
         zipapp_command: str | None = None,
         mode: str | None = None,
+        cli_flag: bool = True,
+        cli_flag_name: str = "runtime",
         log_level: str | None = None,
     ) -> bool:
         """Pre-import hook — runs before any tests or plugins are imported.
 
-        Swaps in the appropriate runtime module based on RUNTIME_MODE:
+        Swaps in the appropriate runtime module based on mode:
         - package (default): uses src/{package_name} (no swap needed)
         - stitched: uses dist/{script_name}.py (serger-built single file)
         - zipapp: uses dist/{script_name}.pyz (zipbundler-built zipapp)
@@ -343,7 +370,12 @@ class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnu
             zipapp_command: Optional path to bundler script for zipapp mode
                 (relative to root). If provided and exists, uses
                 `python {zipapp_command}`. Otherwise, uses zipbundler.
-            mode: Runtime mode override. If None, reads from RUNTIME_MODE env var.
+            mode: Explicit runtime mode override. Takes highest priority.
+                If provided, uses this value regardless of CLI or env var.
+            cli_flag: If True, check sys.argv for the CLI flag (default True).
+                Used if mode is None.
+            cli_flag_name: Name of the CLI flag to check (default "runtime-mode").
+                Supports both --flag=value and --flag value formats.
             log_level: Optional log level to pass to serger and zipbundler.
                 If provided, adds `--log-level=<log_level>` to their commands.
 
@@ -355,10 +387,14 @@ class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnu
         """
         safe_trace = makeSafeTrace("🧬")
 
-        if mode is None:
-            mode = os.getenv("RUNTIME_MODE", "package")
+        # Priority: mode > CLI flag > env var
+        runtime_mode = mode
+        if runtime_mode is None and cli_flag:
+            runtime_mode = ApatheticTest_Internal_Runtime._parse_cli_flag(cli_flag_name)
+        if runtime_mode is None:
+            runtime_mode = os.getenv("RUNTIME_MODE", "package")
 
-        if mode == "package":
+        if runtime_mode == "package":
             return False  # Normal package mode; nothing to do.
 
         # Nuke any already-imported modules from src/ to avoid stale refs.
@@ -373,17 +409,20 @@ class ApatheticTest_Internal_Runtime:  # noqa: N801  # pyright: ignore[reportUnu
                     del sys.modules[name]
                     break
 
-        if mode == "stitched":
+        if runtime_mode == "stitched":
             return ApatheticTest_Internal_Runtime._load_stitched_mode(
                 root, package_name, script_name, stitch_command, safe_trace, log_level
             )
-        if mode == "zipapp":
+        if runtime_mode == "zipapp":
             return ApatheticTest_Internal_Runtime._load_zipapp_mode(
                 root, package_name, script_name, zipapp_command, safe_trace, log_level
             )
 
         # Unknown mode
-        xmsg = f"Unknown RUNTIME_MODE={mode!r}. Valid modes: package, stitched, zipapp"
+        xmsg = (
+            f"Unknown runtime mode={runtime_mode!r}. "
+            "Valid modes: package, stitched, zipapp"
+        )
         raise pytest.UsageError(xmsg)
 
     @staticmethod

@@ -9,8 +9,6 @@ Each pytest run now targets a single runtime mode:
 Switch mode with: RUNTIME_MODE=stitched pytest or RUNTIME_MODE=zipapp pytest
 """
 
-import apathetic_logging as alib_logging
-
 import apathetic_testing as alib_test
 from tests.utils import (
     PROGRAM_PACKAGE,
@@ -31,12 +29,10 @@ alib_test.runtime_swap(
 # - pytest_apathetic_logging: logging fixtures (atest_reset_logger_level autouse)
 # - pytest_debug: filters @pytest.mark.debug tests (opt-in via -k debug)
 # - pytest_quiet: adjusts output based on verbosity level
-# - pytest_runtime_classic: runtime mode filtering and reporting
+# - pytest_runtime: runtime mode filtering and reporting
 pytest_plugins = [
     "pytest_apathetic_logging",
     "pytest_debug",
     "pytest_quiet",
-    "pytest_runtime_classic",
+    "pytest_runtime",
 ]
-
-safe_trace = alib_logging.makeSafeTrace("⚡️")

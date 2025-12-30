@@ -11,13 +11,14 @@ No setup needed—pytest automatically discovers and loads the plugin when insta
 
 **Option 2: Manual loading in conftest.py**
 ```python
-pytest_plugins = ["pytest_runtime_classic"]
+pytest_plugins = ["pytest_runtime"]
 ```
 """
 
 from __future__ import annotations
 
-from pytest_runtime_classic.plugin import (
+from pytest_runtime.plugin import (
+    pytest_addoption,
     pytest_collection_modifyitems,
     pytest_report_header,
     pytest_unconfigure,
@@ -25,6 +26,7 @@ from pytest_runtime_classic.plugin import (
 
 
 __all__ = [
+    "pytest_addoption",
     "pytest_collection_modifyitems",
     "pytest_report_header",
     "pytest_unconfigure",

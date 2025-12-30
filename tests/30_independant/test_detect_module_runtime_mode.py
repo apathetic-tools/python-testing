@@ -16,8 +16,6 @@ import apathetic_testing as mod_apathetic_testing
         ({"__file__": "/path/to/regular_module.py"}, "package"),
         # Stitched module
         ({"__STITCHED__": True}, "stitched"),
-        # Standalone module
-        ({"__STANDALONE__": True}, "stitched"),
         # Zipapp module (with .pyz in path)
         ({"__file__": "/path/to/archive.pyz/module.py"}, "zipapp"),
         # Zipapp module (ending with .pyz)

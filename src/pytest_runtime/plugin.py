@@ -7,6 +7,20 @@ import os
 import pytest
 
 
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Add custom CLI options for runtime mode selection."""
+    parser.addoption(
+        "--runtime",
+        action="store",
+        default=None,
+        help=(
+            "Specify runtime mode (package, stitched, zipapp). "
+            "Can also be set via RUNTIME_MODE environment variable. "
+            "CLI flag takes precedence if both are set."
+        ),
+    )
+
+
 def _mode() -> str:
     return os.getenv("RUNTIME_MODE", "package")
 
@@ -95,6 +109,7 @@ def pytest_unconfigure(config: pytest.Config) -> None:
 
 
 __all__ = [
+    "pytest_addoption",
     "pytest_collection_modifyitems",
     "pytest_report_header",
     "pytest_unconfigure",
