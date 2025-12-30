@@ -11,14 +11,15 @@ Integration patterns and examples for Apathetic Python Testing fixtures and util
 ## Table of Contents
 
 1. [Basic Integration](#basic-integration)
-2. [Testing with Isolated Logging](#testing-with-isolated-logging)
-3. [Debugging with TEST Level](#debugging-with-test-level)
-4. [Testing Log Level Changes](#testing-log-level-changes)
-5. [Safe Patching](#safe-patching)
-6. [Testing Runtime Modes](#testing-runtime-modes)
-7. [Mock Superclass Testing](#mock-superclass-testing)
-8. [Common Patterns](#common-patterns)
-9. [Best Practices](#best-practices)
+2. [Disabling Pytest Plugins](#disabling-pytest-plugins)
+3. [Testing with Isolated Logging](#testing-with-isolated-logging)
+4. [Debugging with TEST Level](#debugging-with-test-level)
+5. [Testing Log Level Changes](#testing-log-level-changes)
+6. [Safe Patching](#safe-patching)
+7. [Testing Runtime Modes](#testing-runtime-modes)
+8. [Mock Superclass Testing](#mock-superclass-testing)
+9. [Common Patterns](#common-patterns)
+10. [Best Practices](#best-practices)
 
 ## Basic Integration
 
@@ -51,6 +52,40 @@ pytest_plugins = [
 ```
 
 This registers all fixtures from the module automatically.
+
+## Disabling Pytest Plugins
+
+When you install `apathetic-testing`, four pytest plugins are automatically loaded via entry points:
+
+- `pytest_apathetic_logging` — Logging fixtures and autouse logger reset
+- `pytest_debug` — Filters tests marked with `@pytest.mark.debug`
+- `pytest_quiet` — Adjusts output verbosity
+- `pytest_runtime` — Runtime mode reporting
+
+### Opting Out via pytest.ini
+
+If you want to disable one or more plugins, add to your `pytest.ini`:
+
+```ini
+[pytest]
+addopts = -p no:pytest_apathetic_logging
+          -p no:pytest_debug
+          -p no:pytest_quiet
+          -p no:pytest_runtime
+```
+
+You can selectively disable individual plugins as needed. For example, to keep logging fixtures but disable debug filtering:
+
+```ini
+[pytest]
+addopts = -p no:pytest_debug -p no:pytest_quiet
+```
+
+### Other Opt-Out Methods
+
+- **Command line**: `pytest --disable-plugin-autoload`
+- **Environment variable**: `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest`
+- **conftest.py**: Set `pytest_plugins = []` or list only plugins you want
 
 ## Testing with Isolated Logging
 
