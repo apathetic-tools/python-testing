@@ -454,4 +454,12 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 package-mode = true
-packages = [{ include = "apathetic_testing", from = "src" }]
+packages = [
+    { include = "apathetic_testing", from = "src" },
+    { include = "pytest_apathetic_logging", from = "src" },
+    { include = "pytest_debug", from = "src" },
+    { include = "pytest_quiet", from = "src" },
+    { include = "pytest_runtime", from = "src" },
+    { include = "pytest_timeout_defaults", from = "src" },
+    { include = "pytest_xdist_quiet", from = "src" },
+]
