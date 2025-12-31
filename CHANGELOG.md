@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.1 (2025-12-31)
+
+### Bug Fixes
+
+- **pyproject**: Add pytest plugin packages to poetry config
+  ([`4acf2d6`](https://github.com/apathetic-tools/python-testing/commit/4acf2d65bf8a5e558ade3f5906292d03739104ee))
+
+
 ## v0.2.0 (2025-12-30)
 
 ### Documentation
