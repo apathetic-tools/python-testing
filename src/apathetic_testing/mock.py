@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import sys
 from contextlib import suppress
-from typing import Any
+from typing import Any, NamedTuple
 from unittest.mock import MagicMock
 
 import pytest
@@ -126,3 +126,38 @@ class ApatheticTest_Internal_Mock:  # noqa: N801  # pyright: ignore[reportUnused
                         f"got {call_args_pos[: len(args)]}"
                     )
                     raise AssertionError(msg)
+
+    # Create a named tuple that matches sys.version_info structure
+    # sys.version_info is a named tuple with fields:
+    # major, minor, micro, releaselevel, serial
+
+    class VersionInfo(NamedTuple):
+        """Mock sys.version_info named tuple."""
+
+        major: int
+        minor: int
+        micro: int
+        releaselevel: str
+        serial: int
+
+    @staticmethod
+    def create_mock_version_info(major: int, minor: int, micro: int = 0) -> Any:
+        """Create a mock sys.version_info object with major and minor attributes.
+
+        This properly mocks sys.version_info so it can be used with attribute access
+        (.major, .minor) and tuple comparison, matching the behavior of the real
+        sys.version_info object (which is a named tuple).
+
+        Args:
+            major: Major version number (e.g., 3)
+            minor: Minor version number (e.g., 11)
+            micro: Micro version number (default: 0)
+
+        Returns:
+            A mock version_info object with .major, .minor, .micro attributes
+            and tuple-like comparison support.
+        """
+        _mock = ApatheticTest_Internal_Mock
+        return _mock.VersionInfo(
+            major=major, minor=minor, micro=micro, releaselevel="final", serial=0
+        )

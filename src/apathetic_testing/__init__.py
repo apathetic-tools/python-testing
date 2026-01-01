@@ -54,6 +54,7 @@ has_pytest_plugin_enabled = apathetic_testing.has_pytest_plugin_enabled
 
 # Testing - Mock
 create_mock_superclass_test = apathetic_testing.create_mock_superclass_test
+create_mock_version_info = apathetic_testing.create_mock_version_info
 
 # Testing - Patch
 patch_everywhere = apathetic_testing.patch_everywhere
@@ -88,6 +89,7 @@ __all__ = [  # noqa: RUF022
     "has_pytest_plugin_enabled",
     # mock
     "create_mock_superclass_test",
+    "create_mock_version_info",
     # patch
     "patch_everywhere",
     # fixtures - helper classes
