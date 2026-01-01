@@ -13,6 +13,10 @@ permalink: /
 
 Some ways to generate stitched scripts are [serger](https://github.com/apathetic-tools/serger); and for zipapps: [zipbundler](https://github.com/apathetic-tools/zipbundler) or stdlib's [zipapp](https://docs.python.org/3/library/zipapp.html).
 
+> [!NOTE]
+> This project is largely AI-written and minimally polished. I rely on it, but I haven't reviewed every detail.
+> Expect rough edges. Thoughtful issue reports are appreciated.
+
 ## Features
 
 - **🔍 Logging Fixtures** — Isolated logging state, TEST level debugging, level change assertions
