@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.3.0 (2026-01-01)
+
+### Features
+
+- **mock**: Add create_mock_version_info for testing version checks
+  ([`30602e5`](https://github.com/apathetic-tools/python-testing/commit/30602e5a68c2ec109b485c4bcdd0a44a1bbc88e7))
+
+- **types**: Add __init__.pyi stub to export nested classes for mypy
+  ([`b1fcf0b`](https://github.com/apathetic-tools/python-testing/commit/b1fcf0b47c396125dda24083be41c3b2de45b543))
+
+
 ## v0.2.1 (2025-12-31)
 
 ### Bug Fixes
